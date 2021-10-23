@@ -2,6 +2,11 @@
 #include"GL/glew.h"
 #include"GLFW/glfw3.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/string_cast.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include"stb_image.h"
 
@@ -117,19 +122,25 @@ unsigned int CreateTriangle(unsigned int & vertexCount)
 
 unsigned int CreateShaders()
 {
-    const char * VertexShaderSource =
+    const char* VertexShaderSource =
         "#version 330 core\n"
         "layout(location = 0) in vec4 aPos;\n"
         "layout(location = 1) in vec2 TexCoord;\n"
         "//layout(location = 1) in vec3 Color;\n"
         "uniform vec3 uColor;\n"
-        "uniform float uScale;\n"
         "uniform float uTime;\n"
+        "uniform mat4 uScale;\n"
+        "uniform mat4 uRotate;\n"
+        "uniform mat4 uTranslate;\n"
+        "uniform mat4 uCombinedTransform;\n"
         "out vec3 colorFrag;\n"
         "out vec2 UVFrag;\n"
+        "const float PI = 3.14;\n"
+        "const float Angle = 90.0f * PI/180.0f;"
         "void main()\n"
         "{\n"
-            "gl_Position = vec4(aPos.x*uScale*uTime, aPos.y*uScale*uTime, aPos.z, 1.0);\n"
+            "//mat4 combined = uTranslate * uRotate * uScale;\n"
+            "gl_Position = uCombinedTransform * aPos;\n"
             "UVFrag = TexCoord;\n"
         "}\n";
 
@@ -248,56 +259,108 @@ unsigned int LoadTexture(std::string strFileName)
 
 int main()
 {
+    /* GLM Introduction
+    glm::vec4 point1(-0.5f, -0.5f, 0.0f, 1.0f); // A
+    glm::vec4 point2(0.5f, -0.5f, 0.0f, 1.0f);  // B
+    glm::vec4 point3(0.5f, 0.5f, 0.0f, 1.0f);   // C
+    glm::vec4 point4(-0.5f, 0.5f, 0.0f, 1.0f);
+
+    // BA
+    glm::vec3 direction1 = glm::normalize(point2 - point1);
+
+    // CA
+    glm::vec3 direction2 = glm::normalize(point3 - point1);
+
+    float consineAngle = glm::dot(direction1, direction2);
+    float Angle = glm::acos(consineAngle) * 180.0f / glm::pi<float>();
+    std::cout << glm::to_string(direction1) << std::endl;
+    std::cout << glm::to_string(direction2) << std::endl;
+    std::cout << Angle << std::endl;
+    glm::vec3 normal = glm::normalize(glm::cross(direction1, direction2));
+    std::cout << glm::to_string(normal) << std::endl;
+
+    glm::mat4 matScale = glm::identity<glm::mat4>();
+    matScale = glm::scale(matScale, glm::vec3(2.0f, 1.0f, 1.0f));
+    std::cout << glm::to_string(matScale) << std::endl;
+
+    glm::mat4 matRotate = glm::identity<glm::mat4>();
+    matRotate = glm::rotate(matRotate, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    std::cout << glm::to_string(matRotate) << std::endl;
+
+    glm::mat4 matTranslate = glm::identity<glm::mat4>();
+    matTranslate = glm::translate(matTranslate, glm::vec3(1.0f, 0.0f, 0.0f));
+    std::cout << glm::to_string(matTranslate) << std::endl;
+
+    glm::mat4 matCombined = matTranslate * matRotate * matScale;
+    std::cout << glm::to_string(matCombined) << std::endl;
+
+    glm::vec4 scaledPoint1 = matCombined * point1;
+    std::cout << glm::to_string(scaledPoint1) << std::endl;
+
+    matCombined = glm::identity<glm::mat4>();
+    matCombined = glm::translate(matCombined, glm::vec3(1.0f, 0.0f, 0.0f));
+    matCombined = glm::rotate(matCombined, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    matCombined = glm::scale(matCombined, glm::vec3(2.0f, 1.0f, 1.0f));
+    std::cout << glm::to_string(matCombined) << std::endl;
+
+    scaledPoint1 = matCombined * point1;
+    std::cout << glm::to_string(scaledPoint1) << std::endl;
+
+    getchar();
+    return 0;
+    */
+
     GLFWwindow* window;
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
-
-    int width = 1920;
-    int height = 1080;
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
-    if (!window)
     {
-        glfwTerminate();
-        return -1;
+        /* Initialize the library */
+        if (!glfwInit())
+            return -1;
+
+        int width = 1920;
+        int height = 1080;
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+        /* Create a windowed mode window and its OpenGL context */
+        window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+        if (!window)
+        {
+            glfwTerminate();
+            return -1;
+        }
+
+
+        /* Make the window's context current */
+        glfwMakeContextCurrent(window);
+
+        // Initialize glew
+        glewInit();
+
+
+        glfwSetFramebufferSizeCallback(window, OnWindowResize);
+
+        glfwSetScrollCallback(window, OnMouseScroll);
+
+        // TODO: Move to material
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    // Transparent blend or Alpha blend or Transparent
+        //glBlendFunc(GL_ONE, GL_ZERO); // Opaque or Replace blend
+        //glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ZERO);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
+        glFrontFace(GL_CCW);
+
+        glEnable(GL_SCISSOR_TEST);
+
+        glViewport(0, 0, width, height);
+        glScissor(0, 0, width, height);
+
     }
-
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    // Initialize glew
-    glewInit();
-
-
-    glfwSetFramebufferSizeCallback(window, OnWindowResize);
-
-    glfwSetScrollCallback(window, OnMouseScroll);
-
-    // TODO: Move to material
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    // Transparent blend or Alpha blend or Transparent
-    //glBlendFunc(GL_ONE, GL_ZERO); // Opaque or Replace blend
-    //glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ZERO);
-
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-
-    glFrontFace(GL_CCW);
-
-    glEnable(GL_SCISSOR_TEST);
-
-    glViewport(0, 0, width, height);
-    glScissor(0, 0, width, height);
-
 
     unsigned int vertexCount = 0;
     // Entities
@@ -306,6 +369,29 @@ int main()
 
     glUseProgram(program);
     glUniform1f(glGetUniformLocation(program, "uScale"), 1.0f);
+
+    glm::mat4 matScale = glm::identity<glm::mat4>();
+    matScale = glm::scale(matScale, glm::vec3(2.0f, 1.0f, 1.0f));
+    //std::cout << glm::to_string(matScale) << std::endl;
+
+    glm::mat4 matRotate = glm::identity<glm::mat4>();
+    matRotate = glm::rotate(matRotate, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    //std::cout << glm::to_string(matRotate) << std::endl;
+
+    glm::mat4 matTranslate = glm::identity<glm::mat4>();
+    matTranslate = glm::translate(matTranslate, glm::vec3(0.2f, 0.0f, 0.0f));
+    //std::cout << glm::to_string(matTranslate) << std::endl;
+
+    glUniformMatrix4fv(glGetUniformLocation(program, "uScale"), 1, GL_FALSE, &(matScale[0][0]));
+    glUniformMatrix4fv(glGetUniformLocation(program, "uRotate"), 1, GL_FALSE, &(matRotate[0].x));
+    glUniformMatrix4fv(glGetUniformLocation(program, "uTranslate"), 1, GL_FALSE, glm::value_ptr(matTranslate));
+
+    glm::mat4 matCombined = glm::identity<glm::mat4>();
+    matCombined = glm::translate(matCombined, glm::vec3(0.0f, 0.0f, 0.0f));
+    matCombined = glm::rotate(matCombined, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    matCombined = glm::scale(matCombined, glm::vec3(2.0f, 1.0f, 1.0f));
+
+    glUniformMatrix4fv(glGetUniformLocation(program, "uCombinedTransform"), 1, GL_FALSE, glm::value_ptr(matCombined));
 
     //unsigned int texture = LoadTexture(GetTexturePath() + "small_texture.png");
     unsigned int texture = LoadTexture(GetTexturePath() + "minions\\minion.png");
@@ -331,7 +417,15 @@ int main()
 
         float color[] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
         glUniform3fv(glGetUniformLocation(program, "uColor"), 2, color);
+        /*
+        glm::mat4 matTranslate = glm::identity<glm::mat4>();
+        matTranslate = glm::translate(matTranslate, glm::vec3(0.2f*fTime, 0.0f, 0.0f));
+        glUniformMatrix4fv(glGetUniformLocation(program, "uTranslate"), 1, GL_FALSE, glm::value_ptr(matTranslate));
 
+        glm::mat4 matRotate = glm::identity<glm::mat4>();
+        matRotate = glm::rotate(matRotate, 45.0f*fCos, glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(program, "uRotate"), 1, GL_FALSE, &(matRotate[0].x));
+        */
         glUseProgram(program);
         glBindVertexArray(triangle);
         glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
