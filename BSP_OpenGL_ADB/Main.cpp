@@ -44,19 +44,28 @@ std::string GetTexturePath()
     return GetMediaPath() + "textures\\";
 }
 
+unsigned int program;
+float Scale = 1.0f;
+
+glm::mat4 matProjection = glm::identity<glm::mat4>();
+
 void OnWindowResize(GLFWwindow * pWindow, int width, int height)
 {
+    matProjection = glm::perspective(glm::radians(60.0f), width / (height * 1.0f), 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(program, "uMatProjection"), 1, GL_FALSE, glm::value_ptr(matProjection));
     glViewport(0, 0, width, height);
     glScissor(0, 0, width, height);
 }
-
-unsigned int program;
-float Scale = 1.0f;
 
 void OnMouseScroll(GLFWwindow* pWindow, double x, double y)
 {
     Scale -= y * 0.1f;
     glUniform1f(glGetUniformLocation(program, "uScale"), Scale);
+}
+
+void OnKey(GLFWwindow* pWidnow, int key, int scancode, int action, int modifier)
+{
+    std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Modifier: " << modifier << std::endl;
 }
 
 unsigned int CreateTriangle(unsigned int & vertexCount)
@@ -129,18 +138,16 @@ unsigned int CreateShaders()
         "//layout(location = 1) in vec3 Color;\n"
         "uniform vec3 uColor;\n"
         "uniform float uTime;\n"
-        "uniform mat4 uScale;\n"
-        "uniform mat4 uRotate;\n"
-        "uniform mat4 uTranslate;\n"
-        "uniform mat4 uCombinedTransform;\n"
+        "uniform mat4 uMatModel;\n"
+        "uniform mat4 uMatCamera;\n"
+        "uniform mat4 uMatProjection;\n"
         "out vec3 colorFrag;\n"
         "out vec2 UVFrag;\n"
         "const float PI = 3.14;\n"
         "const float Angle = 90.0f * PI/180.0f;"
         "void main()\n"
         "{\n"
-            "//mat4 combined = uTranslate * uRotate * uScale;\n"
-            "gl_Position = uCombinedTransform * aPos;\n"
+            "gl_Position = uMatProjection * uMatCamera * uMatModel * aPos;\n"
             "UVFrag = TexCoord;\n"
         "}\n";
 
@@ -309,15 +316,13 @@ int main()
     getchar();
     return 0;
     */
-
+    int width = 400;
+    int height = 700;
     GLFWwindow* window;
     {
         /* Initialize the library */
         if (!glfwInit())
             return -1;
-
-        int width = 1920;
-        int height = 1080;
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -342,6 +347,8 @@ int main()
 
         glfwSetScrollCallback(window, OnMouseScroll);
 
+        glfwSetKeyCallback(window, OnKey);
+
         // TODO: Move to material
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    // Transparent blend or Alpha blend or Transparent
@@ -357,6 +364,8 @@ int main()
 
         glEnable(GL_SCISSOR_TEST);
 
+        glEnable(GL_DEPTH_TEST);
+
         glViewport(0, 0, width, height);
         glScissor(0, 0, width, height);
 
@@ -370,28 +379,30 @@ int main()
     glUseProgram(program);
     glUniform1f(glGetUniformLocation(program, "uScale"), 1.0f);
 
-    glm::mat4 matScale = glm::identity<glm::mat4>();
-    matScale = glm::scale(matScale, glm::vec3(2.0f, 1.0f, 1.0f));
-    //std::cout << glm::to_string(matScale) << std::endl;
 
-    glm::mat4 matRotate = glm::identity<glm::mat4>();
-    matRotate = glm::rotate(matRotate, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-    //std::cout << glm::to_string(matRotate) << std::endl;
+    // World Space
+    glm::mat4 matModel = glm::identity<glm::mat4>();
+    matModel = glm::translate(matModel, glm::vec3(0.0f, 0.0f, -2.0f));
+    matModel = glm::rotate(matModel, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //matModel = glm::scale(matModel, glm::vec3(500.0f/564.0f, 1.0f, 1.0f)); // minion.jpg
+    matModel = glm::scale(matModel, glm::vec3(693.0f / 760.0f, 1.0f, 1.0f)); // minion.png
 
-    glm::mat4 matTranslate = glm::identity<glm::mat4>();
-    matTranslate = glm::translate(matTranslate, glm::vec3(0.2f, 0.0f, 0.0f));
-    //std::cout << glm::to_string(matTranslate) << std::endl;
+    //glm::mat4 matCamera = glm::identity<glm::mat4>();
+    //matCamera = glm::translate(matCamera, glm::vec3(0.0f, 0.0f, -3.0f));
+    //matCamera = glm::rotate(matCamera, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    glUniformMatrix4fv(glGetUniformLocation(program, "uScale"), 1, GL_FALSE, &(matScale[0][0]));
-    glUniformMatrix4fv(glGetUniformLocation(program, "uRotate"), 1, GL_FALSE, &(matRotate[0].x));
-    glUniformMatrix4fv(glGetUniformLocation(program, "uTranslate"), 1, GL_FALSE, glm::value_ptr(matTranslate));
+    glm::vec3 cameraPos(0.0f, 0.0f, 2.0f);
+    glm::mat4 matCamera = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::mat4 matCombined = glm::identity<glm::mat4>();
-    matCombined = glm::translate(matCombined, glm::vec3(0.0f, 0.0f, 0.0f));
-    matCombined = glm::rotate(matCombined, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-    matCombined = glm::scale(matCombined, glm::vec3(2.0f, 1.0f, 1.0f));
+    matProjection = glm::perspective(glm::radians(60.0f), width / (height * 1.0f), 0.1f, 100.0f);
 
-    glUniformMatrix4fv(glGetUniformLocation(program, "uCombinedTransform"), 1, GL_FALSE, glm::value_ptr(matCombined));
+    glUniformMatrix4fv(glGetUniformLocation(program, "uMatModel"), 1, GL_FALSE, glm::value_ptr(matModel));
+    glUniformMatrix4fv(glGetUniformLocation(program, "uMatCamera"), 1, GL_FALSE, glm::value_ptr(matCamera));
+    glUniformMatrix4fv(glGetUniformLocation(program, "uMatProjection"), 1, GL_FALSE, glm::value_ptr(matProjection));
+
+    // Model View Projection Matrix
+    // World View Projection Matrix
+    // World Camera Projection Matrix
 
     //unsigned int texture = LoadTexture(GetTexturePath() + "small_texture.png");
     unsigned int texture = LoadTexture(GetTexturePath() + "minions\\minion.png");
@@ -408,38 +419,80 @@ int main()
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
-
         float time = (float)glfwGetTime();
-        float fTime = 1.0f + fabs(sinf(time*0.25f)*2.0f);
+        float fTime = 1.0f + fabs(sinf(time * 0.25f) * 2.0f);
         float fCos = cosf(time * 0.2f);
         glUniform1f(glGetUniformLocation(program, "uTime"), 1.0f);
         //glUniform1f(glGetUniformLocation(program, "uScale"), 0.5f);
 
         float color[] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
         glUniform3fv(glGetUniformLocation(program, "uColor"), 2, color);
-        /*
-        glm::mat4 matTranslate = glm::identity<glm::mat4>();
-        matTranslate = glm::translate(matTranslate, glm::vec3(0.2f*fTime, 0.0f, 0.0f));
-        glUniformMatrix4fv(glGetUniformLocation(program, "uTranslate"), 1, GL_FALSE, glm::value_ptr(matTranslate));
+        
+        glm::mat4 matCamera = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        glm::mat4 matRotate = glm::identity<glm::mat4>();
-        matRotate = glm::rotate(matRotate, 45.0f*fCos, glm::vec3(0.0f, 0.0f, 1.0f));
-        glUniformMatrix4fv(glGetUniformLocation(program, "uRotate"), 1, GL_FALSE, &(matRotate[0].x));
-        */
-        glUseProgram(program);
-        glBindVertexArray(triangle);
-        glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        {
+            {
+                glm::mat4 matModel = glm::identity<glm::mat4>();
+                matModel = glm::translate(matModel, glm::vec3(0.0f, 0.0f, -4.0f));
+                matModel = glm::rotate(matModel, glm::radians(fCos * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+                matModel = glm::scale(matModel, glm::vec3(500.0f / 564.0f, 1.0f, 1.0f)); // minion.jpg
+                //matModel = glm::translate(matModel, glm::vec3(-0.5f, -0.5f, 0.0f));
 
-        glUniform1i(glGetUniformLocation(program, "Texture"), 0); // set it manually
-        glUniform1i(glGetUniformLocation(program, "Second"), 1); // set it manually
+                //matModel = glm::scale(matModel, glm::vec3(693.0f / 760.0f, 1.0f, 1.0f)); // minion.png
+                glUniformMatrix4fv(glGetUniformLocation(program, "uMatModel"), 1, GL_FALSE, glm::value_ptr(matModel));
+                glUniformMatrix4fv(glGetUniformLocation(program, "uMatCamera"), 1, GL_FALSE, glm::value_ptr(matCamera));
+            }
+            glUseProgram(program);
+            glBindVertexArray(triangle);
+            glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
+            glBindTexture(GL_TEXTURE_2D, texture2);
 
-        //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-        glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
+            glUniform1i(glGetUniformLocation(program, "Texture"), 1); // set it manually
+            glUniform1i(glGetUniformLocation(program, "Second"), 0); // set it manually
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+            glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+        }
+        
 
-        glBindVertexArray(0);
+        {
+            {
+                glm::mat4 matModel = glm::identity<glm::mat4>();
+                matModel = glm::translate(matModel, glm::vec3(0.4f, 0.2f, -3.0f));
+                matModel = glm::rotate(matModel, glm::radians(fCos * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+                matModel = glm::scale(matModel, glm::vec3(500.0f / 564.0f, 1.0f, 1.0f)); // minion.jpg
+                //matModel = glm::translate(matModel, glm::vec3(-0.5f, -0.5f, 0.0f));
+
+                //matModel = glm::scale(matModel, glm::vec3(693.0f / 760.0f, 1.0f, 1.0f)); // minion.png
+                glUniformMatrix4fv(glGetUniformLocation(program, "uMatModel"), 1, GL_FALSE, glm::value_ptr(matModel));
+                glUniformMatrix4fv(glGetUniformLocation(program, "uMatCamera"), 1, GL_FALSE, glm::value_ptr(matCamera));
+            }
+            glUseProgram(program);
+            glBindVertexArray(triangle);
+            glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
+            glBindTexture(GL_TEXTURE_2D, texture2);
+
+            glUniform1i(glGetUniformLocation(program, "Texture"), 0); // set it manually
+            glUniform1i(glGetUniformLocation(program, "Second"), 1); // set it manually
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+            glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            cameraPos.z += -0.2f;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            cameraPos.z -= -0.2f;
+        }
 
         /*
         glBegin(GL_TRIANGLES);
