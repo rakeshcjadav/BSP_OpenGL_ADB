@@ -10,6 +10,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include"stb_image.h"
 
+
+#include"Shader.h"
+#include"Program.h"
+
 std::string GetEnv(std::string strName)
 {
     char* libvar;
@@ -44,7 +48,7 @@ std::string GetTexturePath()
     return GetMediaPath() + "textures\\";
 }
 
-unsigned int program;
+CProgram* pProgram;
 float Scale = 1.0f;
 
 glm::mat4 matProjection = glm::identity<glm::mat4>();
@@ -52,7 +56,7 @@ glm::mat4 matProjection = glm::identity<glm::mat4>();
 void OnWindowResize(GLFWwindow * pWindow, int width, int height)
 {
     matProjection = glm::perspective(glm::radians(60.0f), width / (height * 1.0f), 0.1f, 100.0f);
-    glUniformMatrix4fv(glGetUniformLocation(program, "uMatProjection"), 1, GL_FALSE, glm::value_ptr(matProjection));
+    pProgram->SetUniform("uMatProjection", matProjection);
     glViewport(0, 0, width, height);
     glScissor(0, 0, width, height);
 }
@@ -60,7 +64,7 @@ void OnWindowResize(GLFWwindow * pWindow, int width, int height)
 void OnMouseScroll(GLFWwindow* pWindow, double x, double y)
 {
     Scale -= y * 0.1f;
-    glUniform1f(glGetUniformLocation(program, "uScale"), Scale);
+    pProgram->SetUniform("uScale", Scale);
 }
 
 void OnKey(GLFWwindow* pWidnow, int key, int scancode, int action, int modifier)
@@ -129,7 +133,7 @@ unsigned int CreateTriangle(unsigned int & vertexCount)
     return VAO;
 }
 
-unsigned int CreateShaders()
+CProgram * CreateShaders()
 {
     const char* VertexShaderSource =
         "#version 330 core\n"
@@ -151,20 +155,6 @@ unsigned int CreateShaders()
             "UVFrag = TexCoord;\n"
         "}\n";
 
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &VertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    int  success;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        char infoLog[512];
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
     const char* FragmentShaderSource =
         "#version 330 core\n"
         "in vec3 colorFrag;\n"
@@ -184,36 +174,12 @@ unsigned int CreateShaders()
             "FragColor = colorMinionOne;\n"
         "}\n";
 
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &FragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    CShader shaderVertex(CShader::SHADER_TYPE::VERTEX_SHADER, VertexShaderSource);
+    CShader shaderFragment(CShader::SHADER_TYPE::FRAGMENT_SHADER, FragmentShaderSource);
 
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        char infoLog[512];
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+    CProgram* pProgram = new CProgram("default", &shaderVertex, &shaderFragment);
 
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    return shaderProgram;
+    return pProgram;
 }
 
 unsigned int LoadTexture(std::string strFileName)
@@ -374,11 +340,10 @@ int main()
     unsigned int vertexCount = 0;
     // Entities
     unsigned int triangle = CreateTriangle(vertexCount);
-    program = CreateShaders();
+    pProgram = CreateShaders();
 
-    glUseProgram(program);
-    glUniform1f(glGetUniformLocation(program, "uScale"), 1.0f);
-
+    pProgram->Use();
+    pProgram->SetUniform("uScale", 1.0f);
 
     // World Space
     glm::mat4 matModel = glm::identity<glm::mat4>();
@@ -396,9 +361,9 @@ int main()
 
     matProjection = glm::perspective(glm::radians(60.0f), width / (height * 1.0f), 0.1f, 100.0f);
 
-    glUniformMatrix4fv(glGetUniformLocation(program, "uMatModel"), 1, GL_FALSE, glm::value_ptr(matModel));
-    glUniformMatrix4fv(glGetUniformLocation(program, "uMatCamera"), 1, GL_FALSE, glm::value_ptr(matCamera));
-    glUniformMatrix4fv(glGetUniformLocation(program, "uMatProjection"), 1, GL_FALSE, glm::value_ptr(matProjection));
+    pProgram->SetUniform("uMatModel", matModel);
+    pProgram->SetUniform("uMatCamera", matCamera);
+    pProgram->SetUniform("uMatProjection", matProjection);
 
     // Model View Projection Matrix
     // World View Projection Matrix
@@ -422,11 +387,10 @@ int main()
         float time = (float)glfwGetTime();
         float fTime = 1.0f + fabs(sinf(time * 0.25f) * 2.0f);
         float fCos = cosf(time * 0.2f);
-        glUniform1f(glGetUniformLocation(program, "uTime"), 1.0f);
-        //glUniform1f(glGetUniformLocation(program, "uScale"), 0.5f);
+        pProgram->SetUniform("uTime", 1.0f);
 
-        float color[] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
-        glUniform3fv(glGetUniformLocation(program, "uColor"), 2, color);
+      //  float color[] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+       // glUniform3fv(glGetUniformLocation(program, "uColor"), 2, color);
         
         glm::mat4 matCamera = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -439,24 +403,23 @@ int main()
                 //matModel = glm::translate(matModel, glm::vec3(-0.5f, -0.5f, 0.0f));
 
                 //matModel = glm::scale(matModel, glm::vec3(693.0f / 760.0f, 1.0f, 1.0f)); // minion.png
-                glUniformMatrix4fv(glGetUniformLocation(program, "uMatModel"), 1, GL_FALSE, glm::value_ptr(matModel));
-                glUniformMatrix4fv(glGetUniformLocation(program, "uMatCamera"), 1, GL_FALSE, glm::value_ptr(matCamera));
+                pProgram->SetUniform("uMatModel", matModel);
+                pProgram->SetUniform("uMatCamera", matCamera);
             }
-            glUseProgram(program);
+            pProgram->Use();
             glBindVertexArray(triangle);
             glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
             glBindTexture(GL_TEXTURE_2D, texture);
             glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
             glBindTexture(GL_TEXTURE_2D, texture2);
 
-            glUniform1i(glGetUniformLocation(program, "Texture"), 1); // set it manually
-            glUniform1i(glGetUniformLocation(program, "Second"), 0); // set it manually
+            pProgram->SetUniform("Texture", 1);
+            pProgram->SetUniform("Second", 0);
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
         }
-        
 
         {
             {
@@ -467,18 +430,18 @@ int main()
                 //matModel = glm::translate(matModel, glm::vec3(-0.5f, -0.5f, 0.0f));
 
                 //matModel = glm::scale(matModel, glm::vec3(693.0f / 760.0f, 1.0f, 1.0f)); // minion.png
-                glUniformMatrix4fv(glGetUniformLocation(program, "uMatModel"), 1, GL_FALSE, glm::value_ptr(matModel));
-                glUniformMatrix4fv(glGetUniformLocation(program, "uMatCamera"), 1, GL_FALSE, glm::value_ptr(matCamera));
+                pProgram->SetUniform("uMatModel", matModel);
+                pProgram->SetUniform("uMatCamera", matCamera);
             }
-            glUseProgram(program);
+            pProgram->Use();
             glBindVertexArray(triangle);
             glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
             glBindTexture(GL_TEXTURE_2D, texture);
             glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
             glBindTexture(GL_TEXTURE_2D, texture2);
 
-            glUniform1i(glGetUniformLocation(program, "Texture"), 0); // set it manually
-            glUniform1i(glGetUniformLocation(program, "Second"), 1); // set it manually
+            pProgram->SetUniform("Texture", 0);
+            pProgram->SetUniform("Second", 1);
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
@@ -493,25 +456,6 @@ int main()
         {
             cameraPos.z -= -0.2f;
         }
-
-        /*
-        glBegin(GL_TRIANGLES);
-            glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-            glVertex3f(0.5f, 0.5f, 0.0f);       // top right
-            glVertex3f(-0.5f, 0.5f, 0.0f);      // top left
-            glVertex3f(-0.5f, -0.5f, 0.0f);     // bottom left
-
-            glColor4f(0.0f, 0.5f, 0.0f, 0.5f);
-            glVertex3f(-0.5f, 0.0f, 0.0f);     // bottom left
-            glVertex3f(0.5f, -0.5f, 0.0f);      // bottom right
-            glVertex3f(0.5f, 0.5f, 0.0f);       // top right
-
-            glColor4f(0.0f, 0.0f, 1.0f, 0.1f);
-            glVertex3f(0.0f, 0.5f, 0.0f);        // bottom left
-            glVertex3f(-0.6f, -0.6f, 0.0f);      // bottom right
-            glVertex3f(0.6f, -0.6f, 0.0f);       // top right
-        glEnd();
-        */
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
