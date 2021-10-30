@@ -1,9 +1,11 @@
 #include"pch.h"
-
-#include"Shader.h"
-#include"Program.h"
-#include"Texture.h"
+#include"Window.h"
+#include"Viewport.h"
+#include"Camera.h"
 #include"Mesh.h"
+#include"Program.h"
+#include"Shader.h"
+#include"Texture.h"
 
 std::string GetEnv(std::string strName)
 {
@@ -44,24 +46,7 @@ float Scale = 1.0f;
 
 glm::mat4 matProjection = glm::identity<glm::mat4>();
 
-void OnWindowResize(GLFWwindow * pWindow, int width, int height)
-{
-    matProjection = glm::perspective(glm::radians(60.0f), width / (height * 1.0f), 0.1f, 100.0f);
-    pProgram->SetUniform("uMatProjection", matProjection);
-    glViewport(0, 0, width, height);
-    glScissor(0, 0, width, height);
-}
 
-void OnMouseScroll(GLFWwindow* pWindow, double x, double y)
-{
-    Scale -= (float)y * 0.1f;
-    pProgram->SetUniform("uScale", Scale);
-}
-
-void OnKey(GLFWwindow* pWidnow, int key, int scancode, int action, int modifier)
-{
-    std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Modifier: " << modifier << std::endl;
-}
 
 CProgram * CreateShaders()
 {
@@ -166,36 +151,16 @@ int main()
     */
     int width = 1280;
     int height = 720;
-    GLFWwindow* window;
+    CWindow* pWindow = nullptr;
     {
         /* Initialize the library */
         if (!glfwInit())
             return -1;
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-        /* Create a windowed mode window and its OpenGL context */
-        window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
-        if (!window)
-        {
-            glfwTerminate();
-            return -1;
-        }
-
-
-        /* Make the window's context current */
-        glfwMakeContextCurrent(window);
+        pWindow = new CWindow(width, height, "BSP OpenGL Course");
 
         // Initialize glew
         glewInit();
-
-
-        glfwSetFramebufferSizeCallback(window, OnWindowResize);
-
-        glfwSetScrollCallback(window, OnMouseScroll);
-
-        glfwSetKeyCallback(window, OnKey);
 
         // TODO: Move to material
         glEnable(GL_BLEND);
@@ -207,17 +172,20 @@ int main()
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-
         glFrontFace(GL_CCW);
-
         glEnable(GL_SCISSOR_TEST);
-
         glEnable(GL_DEPTH_TEST);
 
-        glViewport(0, 0, width, height);
-        glScissor(0, 0, width, height);
-
     }
+
+    CViewport* pViewport = new CViewport(glm::ivec4(0, 0, width, height));
+    pWindow->Attach(pViewport);
+
+    CCamera* pCamera = new CCamera(new SCameraDef(60.0f, 0.1f, 100.0f));
+    pCamera->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
+    pCamera->SetTarget(glm::vec3(0.0f, 0.0f, -2.0f));
+    pCamera->SetUp(glm::vec3(0.0f, 1.0f, 0.0f));
+    pCamera->Attach(pViewport);
 
     pProgram = CreateShaders();
 
@@ -235,10 +203,9 @@ int main()
     //matCamera = glm::translate(matCamera, glm::vec3(0.0f, 0.0f, -3.0f));
     //matCamera = glm::rotate(matCamera, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    glm::vec3 cameraPos(0.0f, 0.0f, 2.0f);
-    glm::mat4 matCamera = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 matCamera = pCamera->GetCameraMatrix();
 
-    matProjection = glm::perspective(glm::radians(60.0f), width / (height * 1.0f), 0.1f, 100.0f);
+    matProjection = pCamera->GetPerspectiveProjectionMatrix();
 
     pProgram->SetUniform("uMatModel", matModel);
     pProgram->SetUniform("uMatCamera", matCamera);
@@ -258,14 +225,14 @@ int main()
 
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!pWindow->IsWindowClosed())
     {
         /* Render here */
         glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, true);
+        //if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        //    glfwSetWindowShouldClose(window, true);
 
         float time = (float)glfwGetTime();
         float fTime = 1.0f + fabs(sinf(time * 0.25f) * 2.0f);
@@ -275,7 +242,7 @@ int main()
       //  float color[] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
        // glUniform3fv(glGetUniformLocation(program, "uColor"), 2, color);
         
-        glm::mat4 matCamera = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 matCamera = pCamera->GetCameraMatrix();
 
         {
             {
@@ -331,7 +298,7 @@ int main()
             //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             pMesh->Render();
         }
-
+        /*
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
             cameraPos.z += -0.2f;
@@ -340,12 +307,9 @@ int main()
         {
             cameraPos.z -= -0.2f;
         }
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
+        */
+        pWindow->SwapBuffers();
+        pWindow->PollEvents();
     }
 
     glfwTerminate();

@@ -3,6 +3,7 @@
 #include<iostream>
 #include<string>
 #include<vector>
+#include<list>
 
 // OpenGL
 #include"GL/glew.h"
