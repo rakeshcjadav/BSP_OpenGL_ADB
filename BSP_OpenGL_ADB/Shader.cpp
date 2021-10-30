@@ -1,7 +1,5 @@
+#include"pch.h"
 #include"Shader.h"
-#include"GL/glew.h"
-#include"GLFW/glfw3.h"
-#include<iostream>
 
 CShader::CShader(SHADER_TYPE shaderType, std::string strShaderSource)
 {

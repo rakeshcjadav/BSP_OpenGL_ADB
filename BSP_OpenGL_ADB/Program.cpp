@@ -1,9 +1,6 @@
+#include"pch.h"
 #include"Program.h"
 #include"Shader.h"
-#include<iostream>
-#include"GL/glew.h"
-#include"GLFW/glfw3.h"
-#include "glm/gtc/type_ptr.hpp"
 
 CProgram::CProgram(std::string strName, CShader* pVertexShader, CShader* pFragmentShader)
 {

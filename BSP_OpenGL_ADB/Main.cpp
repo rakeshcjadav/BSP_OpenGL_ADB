@@ -1,18 +1,9 @@
-#include<iostream>
-#include"GL/glew.h"
-#include"GLFW/glfw3.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/string_cast.hpp"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include"stb_image.h"
-
+#include"pch.h"
 
 #include"Shader.h"
 #include"Program.h"
+#include"Texture.h"
+#include"Mesh.h"
 
 std::string GetEnv(std::string strName)
 {
@@ -63,74 +54,13 @@ void OnWindowResize(GLFWwindow * pWindow, int width, int height)
 
 void OnMouseScroll(GLFWwindow* pWindow, double x, double y)
 {
-    Scale -= y * 0.1f;
+    Scale -= (float)y * 0.1f;
     pProgram->SetUniform("uScale", Scale);
 }
 
 void OnKey(GLFWwindow* pWidnow, int key, int scancode, int action, int modifier)
 {
     std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Modifier: " << modifier << std::endl;
-}
-
-unsigned int CreateTriangle(unsigned int & vertexCount)
-{
-    float vertices[] = {
-        //  (x, y, z, w)
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,      // bottom left
-         0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f,     // bottom right
-         0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f,     // top right
-        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f     // top left
-    };
-
-    float colors[] = {
-         //  (r, g, b)
-        1.0f, 1.0f, 1.0f,     // bottom left
-        1.0f, 1.0f, 1.0f,     // bottom right
-        1.0f, 1.0f, 1.0f,     // top right
-        1.0f, 1.0f, 1.0f,     // top left
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        0, 2, 3
-    };
-
-    vertexCount = 6;
-
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    {
-        unsigned int VBOPos;
-        glGenBuffers(1, &VBOPos);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOPos);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        // at location 0, read 4 floats and jump (stride) 4 floats for next vertex.
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, (6) * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, (6) * sizeof(float), (void*)(4*sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        /*
-        unsigned int VBOCol;
-        glGenBuffers(1, &VBOCol);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOCol);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (3) * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        */
-
-        unsigned int EBO;
-        glGenBuffers(1, &EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    }
-    glBindVertexArray(0);
-
-    return VAO;
 }
 
 CProgram * CreateShaders()
@@ -180,54 +110,6 @@ CProgram * CreateShaders()
     CProgram* pProgram = new CProgram("default", &shaderVertex, &shaderFragment);
 
     return pProgram;
-}
-
-unsigned int LoadTexture(std::string strFileName)
-{
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(strFileName.c_str(), &width, &height, &nrChannels, 0);
-
-    if (!data)
-    {
-        std::cout << "Failed to load the image :" << strFileName << std::endl;
-        return 0;
-    }
-
-    std::cout << "Image Name : " << strFileName << std::endl;
-    std::cout << "Image Width : " << width << std::endl;
-    std::cout << "Channels : " << nrChannels << std::endl;
-
-    GLint format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    //float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-    //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // Filtering ( Tri-linear filtering )
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
-    return texture;
 }
 
 int main()
@@ -282,8 +164,8 @@ int main()
     getchar();
     return 0;
     */
-    int width = 400;
-    int height = 700;
+    int width = 1280;
+    int height = 720;
     GLFWwindow* window;
     {
         /* Initialize the library */
@@ -337,9 +219,6 @@ int main()
 
     }
 
-    unsigned int vertexCount = 0;
-    // Entities
-    unsigned int triangle = CreateTriangle(vertexCount);
     pProgram = CreateShaders();
 
     pProgram->Use();
@@ -370,8 +249,12 @@ int main()
     // World Camera Projection Matrix
 
     //unsigned int texture = LoadTexture(GetTexturePath() + "small_texture.png");
-    unsigned int texture = LoadTexture(GetTexturePath() + "minions\\minion.png");
-    unsigned int texture2 = LoadTexture(GetTexturePath() + "minions\\minion.jpg");
+    //unsigned int texture = LoadTexture(GetTexturePath() + "minions\\minion.png");
+    //unsigned int texture2 = LoadTexture(GetTexturePath() + "minions\\minion.jpg");
+    CTexture* pTexture = new CTexture(GetTexturePath() + "minions\\minion.png");
+    CTexture* pTexture2 = new CTexture(GetTexturePath() + "minions\\minion.jpg");
+
+    CMesh* pMesh = CMesh::CreateRectangle();
 
 
     /* Loop until the user closes the window */
@@ -407,18 +290,19 @@ int main()
                 pProgram->SetUniform("uMatCamera", matCamera);
             }
             pProgram->Use();
-            glBindVertexArray(triangle);
+            pTexture->Bind(0);
+            pTexture2->Bind(1);
+            /*
             glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
             glBindTexture(GL_TEXTURE_2D, texture);
             glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
             glBindTexture(GL_TEXTURE_2D, texture2);
-
+            */
             pProgram->SetUniform("Texture", 1);
             pProgram->SetUniform("Second", 0);
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-            glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
+            pMesh->Render();
         }
 
         {
@@ -434,18 +318,18 @@ int main()
                 pProgram->SetUniform("uMatCamera", matCamera);
             }
             pProgram->Use();
-            glBindVertexArray(triangle);
-            glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
-            glBindTexture(GL_TEXTURE_2D, texture2);
+            pTexture->Bind(0);
+            pTexture2->Bind(1);
+            //glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+            //glBindTexture(GL_TEXTURE_2D, texture);
+            //glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
+            //glBindTexture(GL_TEXTURE_2D, texture2);
 
             pProgram->SetUniform("Texture", 0);
             pProgram->SetUniform("Second", 1);
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             //glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-            glDrawElements(GL_TRIANGLES, vertexCount /* index count */, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
+            pMesh->Render();
         }
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
