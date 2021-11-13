@@ -2,6 +2,7 @@
 
 class CViewport;
 struct SCameraDef;
+class CScene;
 
 class CCamera
 {
@@ -13,13 +14,20 @@ public:
     void Attach(CViewport* pViewport);
     glm::mat4 GetCameraMatrix();
     glm::mat4 GetPerspectiveProjectionMatrix();
+    void SetScene(CScene* pScene);
+    void Render();
+
+    void OnKeyPressed(int key);
+    void OnKeyReleased(int key);
+    void OnMouseMove(double xpos, double ypos);
 
 private:
-    CViewport * m_pViewport;
+    CViewport* m_pViewport;
     SCameraDef* m_pCameraDef;
     glm::vec3 m_vPosition;
     glm::vec3 m_vTarget;
     glm::vec3 m_vUp;
+    CScene* m_pScene;
 };
 
 

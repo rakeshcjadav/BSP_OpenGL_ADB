@@ -4,6 +4,7 @@
 #include<string>
 #include<vector>
 #include<list>
+#include<map>
 
 // OpenGL
 #include"GL/glew.h"
@@ -19,3 +20,6 @@
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include"stb_image.h"
+
+// Local Include
+#include"Util.h"
