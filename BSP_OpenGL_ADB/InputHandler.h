@@ -9,6 +9,7 @@ public:
 
     virtual void OnKeyPressed(int key) = 0;
     virtual void OnKeyReleased(int key) = 0;
+    virtual bool IsKeyPressed(int key) = 0;
     virtual void OnMouseMove(double xpos, double ypos) = 0;
     virtual void GetMousePos(double& xpos, double& ypos) = 0;
     virtual void OnLeftMouseButtonPressed(int modifier) = 0;

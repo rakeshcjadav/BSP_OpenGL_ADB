@@ -18,12 +18,41 @@ CMesh* CMesh::CreateRectangle()
 CMesh* CMesh::CreateCube()
 {
     SMeshData data;
-    data.aVertices.push_back(SVertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)));
-    data.aVertices.push_back(SVertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)));
-    data.aVertices.push_back(SVertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)));
-    data.aVertices.push_back(SVertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)));
 
-    data.aIndices = { 0, 1, 2, 0, 2, 3 };
+    std::vector<SVertex> tempVertices;
+    tempVertices.push_back(SVertex(glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)));
+    tempVertices.push_back(SVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)));
+    tempVertices.push_back(SVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)));
+    tempVertices.push_back(SVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)));
+    
+    std::vector<glm::vec3> angles;
+    angles.push_back(glm::vec3(0.0f, 0.0f, 0.0f));      // Front
+    angles.push_back(glm::vec3(0.0f, 180.0f, 0.0f));      // Back
+    angles.push_back(glm::vec3(0.0f, 90.0f, 0.0f));     // Left
+    angles.push_back(glm::vec3(0.0f, -90.0f, 0.0f));    // Right
+    angles.push_back(glm::vec3(90.0f, 0.0f, 0.0f));      // Top
+    angles.push_back(glm::vec3(-90.0f, 0.0f, 0.0f));      // bottom
+    
+    int face = 0;
+    int vertexOffset = 4;
+    for (const auto& angle : angles)
+    {
+        glm::mat3 mat = glm::toMat3(glm::quat(glm::radians(angle)));
+        for (const SVertex& vertex : tempVertices)
+        {
+            glm::vec3 pos = mat * vertex.position;
+            glm::vec3 normal = mat * vertex.normal;
+            data.aVertices.push_back(SVertex(pos, normal, vertex.uv));
+        }
+        data.aIndices.push_back(face * vertexOffset);
+        data.aIndices.push_back(face * vertexOffset + 1);
+        data.aIndices.push_back(face * vertexOffset + 2);
+
+        data.aIndices.push_back(face * vertexOffset);
+        data.aIndices.push_back(face * vertexOffset + 2);
+        data.aIndices.push_back(face * vertexOffset + 3);
+        face++;
+    }
 
     return new CMesh(&data);
 }

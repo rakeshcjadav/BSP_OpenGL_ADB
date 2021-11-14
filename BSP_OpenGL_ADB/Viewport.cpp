@@ -29,5 +29,6 @@ float CViewport::GetAspectRatio()
 void CViewport::Render(CCamera* pCamera)
 {
     pCamera->Attach(this);
+    pCamera->Update();
     pCamera->Render();
 }

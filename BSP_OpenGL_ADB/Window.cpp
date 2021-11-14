@@ -132,6 +132,11 @@ void CWindow::HandleOnKey(int key, int scancode, int action, int modifier)
     }
 }
 
+bool CWindow::IsKeyPressed(int key)
+{
+    return glfwGetKey(m_pGLFWWindow, key) == GLFW_PRESS ? true : false;
+}
+
 void CWindow::HandleMouseButton(int buttonID, int action, int modifier)
 {
     if (action == GLFW_PRESS)

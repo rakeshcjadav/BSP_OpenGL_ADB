@@ -46,6 +46,28 @@ void CCamera::SetScene(CScene* pScene)
     m_pScene = pScene;
 }
 
+void CCamera::Update()
+{
+    if (IsKeyPressed(GLFW_KEY_W))
+    {
+        m_vPosition += m_vDirection * m_fCameraSensitivity;
+    }
+    else if (IsKeyPressed(GLFW_KEY_S))
+    {
+        m_vPosition -= m_vDirection * m_fCameraSensitivity;
+    }
+    else if (IsKeyPressed(GLFW_KEY_A))
+    {
+        glm::vec3 cameraRight = glm::normalize(glm::cross(m_vDirection, m_vUp)) * 1.0f;
+        m_vPosition -= cameraRight * m_fCameraSensitivity;
+    }
+    else if (IsKeyPressed(GLFW_KEY_D))
+    {
+        glm::vec3 cameraRight = glm::normalize(glm::cross(m_vDirection, m_vUp)) * 1.0f;
+        m_vPosition += cameraRight * m_fCameraSensitivity;
+    }
+}
+
 void CCamera::Render()
 {
     m_pScene->Render(this);
@@ -53,29 +75,19 @@ void CCamera::Render()
 
 void CCamera::OnKeyPressed(int key)
 {
-    if (key == GLFW_KEY_W)
-    {
-        m_vPosition += m_vDirection * m_fCameraSensitivity;
-    }
-    else if (key == GLFW_KEY_S)
-    {
-        m_vPosition -= m_vDirection * m_fCameraSensitivity;
-    }
-    else if (key == GLFW_KEY_A)
-    {
-        glm::vec3 cameraRight = glm::normalize(glm::cross(m_vDirection, m_vUp)) * 1.0f;
-        m_vPosition -= cameraRight * m_fCameraSensitivity;
-    }
-    else if (key == GLFW_KEY_D)
-    {
-        glm::vec3 cameraRight = glm::normalize(glm::cross(m_vDirection, m_vUp)) * 1.0f;
-        m_vPosition += cameraRight * m_fCameraSensitivity;
-    }
+
 }
 
 void CCamera::OnKeyReleased(int key)
 {
 
+}
+
+bool CCamera::IsKeyPressed(int key)
+{
+    if (m_pDelegator)
+        return m_pDelegator->IsKeyPressed(key);
+    return false;
 }
 
 void CCamera::OnMouseMove(double xpos, double ypos)

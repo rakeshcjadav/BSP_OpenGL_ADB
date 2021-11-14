@@ -15,10 +15,12 @@ public:
     glm::mat4 GetCameraMatrix();
     glm::mat4 GetPerspectiveProjectionMatrix();
     void SetScene(CScene* pScene);
+    void Update();
     void Render();
 
     void OnKeyPressed(int key) override;
     void OnKeyReleased(int key) override;
+    bool IsKeyPressed(int key) override;
     void OnMouseMove(double xpos, double ypos) override;
     void GetMousePos(double & xpos, double & ypos) override;
     void OnLeftMouseButtonPressed(int modifier) override;

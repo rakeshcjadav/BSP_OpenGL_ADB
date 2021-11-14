@@ -25,6 +25,7 @@ public:
     void HandleMouseMove(double xpos, double ypos) override;
     void GetMousePos(double & xpos, double & ypos) override;
     void HandleOnKey(int key, int scancode, int action, int modifier) override;
+    bool IsKeyPressed(int key) override;
     void HandleMouseButton(int buttonID, int action, int modifier) override;
 
 private:

@@ -67,7 +67,7 @@ void CScene::LoadScene()
     m_pTexture = new CTexture(CUtil::GetTexturePath() + "minions\\minion.png");
     m_pTexture2 = new CTexture(CUtil::GetTexturePath() + "minions\\minion.jpg");
 
-    m_pMesh = CMesh::CreateRectangle();
+    m_pMesh = CMesh::CreateCube();
 
     m_pCamera = new CCamera(new SCameraDef(60.0f, 0.1f, 100.0f));
     m_pCamera->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
@@ -106,7 +106,7 @@ void CScene::Render(CCamera* pCamera)
     {
         glm::mat4 matModel = glm::identity<glm::mat4>();
         matModel = glm::translate(matModel, glm::vec3(-0.4f, 0.0f, -4.0f));
-        matModel = glm::rotate(matModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        matModel = glm::rotate(matModel, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         matModel = glm::scale(matModel, glm::vec3(500.0f / 564.0f, 1.0f, 1.0f)); // minion.jpg
         //matModel = glm::translate(matModel, glm::vec3(-0.5f, -0.5f, 0.0f));
 
@@ -115,10 +115,10 @@ void CScene::Render(CCamera* pCamera)
     }
     m_pTexture->Bind(0);
     m_pTexture2->Bind(1);
-    m_pProgram->SetUniform("Texture", 0);
-    m_pProgram->SetUniform("Second", 1);
+    m_pProgram->SetUniform("Texture", 1);
+    m_pProgram->SetUniform("Second", 0);
     m_pMesh->Render();
-
+    /*
     {
         glm::mat4 matModel = glm::identity<glm::mat4>();
         matModel = glm::translate(matModel, glm::vec3(0.4f, 0.2f, -3.0f));
@@ -131,5 +131,5 @@ void CScene::Render(CCamera* pCamera)
     }
     m_pProgram->SetUniform("Texture", 1);
     m_pProgram->SetUniform("Second", 0);
-    m_pMesh->Render();
+    m_pMesh->Render();*/
 }
