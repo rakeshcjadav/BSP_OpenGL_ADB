@@ -30,6 +30,12 @@ void CWindow::OnKey(GLFWwindow* pGLFWWindow, int key, int scancode, int action, 
     pWindow->HandleOnKey(key, scancode, action, modifier);
 }
 
+void CWindow::OnMouseButton(GLFWwindow* pGLFWWindow, int buttonID, int action, int modifier)
+{
+    CWindow* pWindow = s_mapWindows[pGLFWWindow];
+    pWindow->HandleMouseButton(buttonID, action, modifier);
+}
+
 CWindow::CWindow(int width, int height, std::string strName)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -45,6 +51,7 @@ CWindow::CWindow(int width, int height, std::string strName)
     glfwSetScrollCallback(m_pGLFWWindow, OnMouseScroll);
     glfwSetCursorPosCallback(m_pGLFWWindow, CWindow::OnMouseMove);
     glfwSetKeyCallback(m_pGLFWWindow, CWindow::OnKey);
+    glfwSetMouseButtonCallback(m_pGLFWWindow, CWindow::OnMouseButton);
 
     s_mapWindows[m_pGLFWWindow] = this;
 }
@@ -53,6 +60,7 @@ void CWindow::Prepare()
 {
     m_pScene = new CScene();
     m_pScene->LoadScene();
+    AttachHandler(m_pScene->GetCamera());
 }
 
 bool CWindow::IsWindowClosed()
@@ -97,20 +105,67 @@ void CWindow::HandleWindowResize(int width, int height)
 
 void CWindow::HandleMouseMove(double xpos, double ypos)
 {
-    CCamera* pCamera = m_pScene->GetCamera();
-    pCamera->OnMouseMove(xpos, ypos);
+    for (IInputHandler* pHandler : m_listHandlers)
+    {
+        pHandler->OnMouseMove(xpos, ypos);
+    }
+}
+
+void CWindow::GetMousePos(double & xpos, double & ypos)
+{
+    glfwGetCursorPos(m_pGLFWWindow, &xpos, &ypos);
 }
 
 void CWindow::HandleOnKey(int key, int scancode, int action, int modifier)
 {
-    CCamera * pCamera = m_pScene->GetCamera();
     std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Modifier: " << modifier << std::endl;
+    for (IInputHandler* pHandler : m_listHandlers)
+    {
+        if (action == GLFW_PRESS)
+        {
+            pHandler->OnKeyPressed(key);
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            pHandler->OnKeyReleased(key);
+        }
+    }
+}
+
+void CWindow::HandleMouseButton(int buttonID, int action, int modifier)
+{
     if (action == GLFW_PRESS)
     {
-        pCamera->OnKeyPressed(key);
+        if (buttonID == GLFW_MOUSE_BUTTON_LEFT)
+        {
+            for (IInputHandler* pHandler : m_listHandlers)
+            {
+                pHandler->OnLeftMouseButtonPressed(modifier);
+            }
+        }
+        else if (buttonID == GLFW_MOUSE_BUTTON_RIGHT)
+        {
+            for (IInputHandler* pHandler : m_listHandlers)
+            {
+                pHandler->OnRightMouseButtonPressed(modifier);
+            }
+        }
     }
     else if (action == GLFW_RELEASE)
     {
-        pCamera->OnKeyReleased(key);
+        if (buttonID == GLFW_MOUSE_BUTTON_LEFT)
+        {
+            for (IInputHandler* pHandler : m_listHandlers)
+            {
+                pHandler->OnLeftMouseButtonReleased(modifier);
+            }
+        }
+        else if (buttonID == GLFW_MOUSE_BUTTON_RIGHT)
+        {
+            for (IInputHandler* pHandler : m_listHandlers)
+            {
+                pHandler->OnRightMouseButtonReleased(modifier);
+            }
+        }
     }
 }

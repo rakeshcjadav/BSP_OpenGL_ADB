@@ -148,6 +148,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="InputDelegator.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="pch.cpp">
@@ -163,6 +165,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="InputDelegator.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Program.h" />

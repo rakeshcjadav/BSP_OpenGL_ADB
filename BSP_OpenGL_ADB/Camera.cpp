@@ -6,6 +6,9 @@
 CCamera::CCamera(SCameraDef* pCameraDef)
 {
     m_pCameraDef = pCameraDef;
+    m_bDragging = false;
+    m_vEulerAngles.y += -90.0f;
+    m_fCameraSensitivity = 0.1f;
 }
 
 void CCamera::SetPosition(glm::vec3 pos)
@@ -15,7 +18,7 @@ void CCamera::SetPosition(glm::vec3 pos)
 
 void CCamera::SetTarget(glm::vec3 target)
 {
-    m_vTarget = target;
+    m_vDirection = glm::normalize(target - m_vPosition);
 }
 
 void CCamera::SetUp(glm::vec3 up)
@@ -30,7 +33,7 @@ void CCamera::Attach(CViewport* pViewport)
 
 glm::mat4 CCamera::GetCameraMatrix()
 {
-    return glm::lookAt(m_vPosition, m_vTarget, m_vUp);
+    return glm::lookAt(m_vPosition, m_vPosition + m_vDirection, m_vUp);
 }
 
 glm::mat4 CCamera::GetPerspectiveProjectionMatrix()
@@ -52,21 +55,21 @@ void CCamera::OnKeyPressed(int key)
 {
     if (key == GLFW_KEY_W)
     {
-        m_vPosition.z--;
+        m_vPosition += m_vDirection * m_fCameraSensitivity;
     }
     else if (key == GLFW_KEY_S)
     {
-        m_vPosition.z++;
+        m_vPosition -= m_vDirection * m_fCameraSensitivity;
     }
     else if (key == GLFW_KEY_A)
     {
-        m_vPosition.x--;
-        m_vTarget.x--;
+        glm::vec3 cameraRight = glm::normalize(glm::cross(m_vDirection, m_vUp)) * 1.0f;
+        m_vPosition -= cameraRight * m_fCameraSensitivity;
     }
     else if (key == GLFW_KEY_D)
     {
-        m_vPosition.x++;
-        m_vTarget.x++;
+        glm::vec3 cameraRight = glm::normalize(glm::cross(m_vDirection, m_vUp)) * 1.0f;
+        m_vPosition += cameraRight * m_fCameraSensitivity;
     }
 }
 
@@ -77,5 +80,60 @@ void CCamera::OnKeyReleased(int key)
 
 void CCamera::OnMouseMove(double xpos, double ypos)
 {
-    std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+    //std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+    if (!m_bDragging)
+        return;
+
+    double xOffset = (xpos - m_vMousePreviousPos.x) * m_fCameraSensitivity;
+    double yOffset = (m_vMousePreviousPos.y - ypos) * m_fCameraSensitivity;
+
+    m_vEulerAngles.x += (float)yOffset;
+    m_vEulerAngles.y += (float)xOffset;
+
+    if (m_vEulerAngles.x > 89.0f)
+        m_vEulerAngles.x = 89.0f;
+    if (m_vEulerAngles.x < -89.0f)
+        m_vEulerAngles.x = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(m_vEulerAngles.y)) * cos(glm::radians(m_vEulerAngles.x));
+    direction.y = sin(glm::radians(m_vEulerAngles.x));
+    direction.z = sin(glm::radians(m_vEulerAngles.y)) * cos(glm::radians(m_vEulerAngles.x));
+    m_vDirection = glm::normalize(direction);
+
+    glm::vec3 right = glm::normalize(glm::cross(m_vDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
+    m_vUp = glm::cross(right, m_vDirection);
+
+    m_vMousePreviousPos.x = xpos;
+    m_vMousePreviousPos.y = ypos;
+}
+
+void CCamera::GetMousePos(double& xpos, double& ypos)
+{
+    if(m_pDelegator)
+        m_pDelegator->GetMousePos(xpos, ypos);
+}
+
+void CCamera::OnLeftMouseButtonPressed(int modifier)
+{
+    m_bDragging = true;
+    std::cout << "Left Mouse Button Pressed " << modifier << std::endl;
+    GetMousePos(m_vMousePreviousPos.x, m_vMousePreviousPos.y);
+    std::cout << m_vMousePreviousPos.y << std::endl;
+}
+
+void CCamera::OnRightMouseButtonPressed(int modifier)
+{
+
+}
+
+void CCamera::OnLeftMouseButtonReleased(int modifier)
+{
+    m_bDragging = false;
+    std::cout << "Left Mouse Button Released " << modifier << std::endl;
+}
+
+void CCamera::OnRightMouseButtonReleased(int modifier)
+{
+
 }

@@ -4,7 +4,7 @@ class CViewport;
 class CCamera;
 class CScene;
 
-class CWindow
+class CWindow : public IInputDelegator
 {
 public:
     CWindow(int width, int height, std::string strName);
@@ -19,11 +19,13 @@ public:
     static void OnWindowResize(GLFWwindow* pWindow, int width, int height);
     static void OnMouseMove(GLFWwindow* pWidnow, double xpos, double ypos);
     static void OnKey(GLFWwindow* pWidnow, int key, int scancode, int action, int modifier);
+    static void OnMouseButton(GLFWwindow* pWidnow, int buttonID, int action, int modifier);
 
-
-    void HandleWindowResize(int width, int height);
-    void HandleMouseMove(double xpos, double ypos);
-    void HandleOnKey(int key, int scancode, int action, int modifier);
+    void HandleWindowResize(int width, int height) override;
+    void HandleMouseMove(double xpos, double ypos) override;
+    void GetMousePos(double & xpos, double & ypos) override;
+    void HandleOnKey(int key, int scancode, int action, int modifier) override;
+    void HandleMouseButton(int buttonID, int action, int modifier) override;
 
 private:
     static std::map<GLFWwindow*, CWindow*> s_mapWindows;

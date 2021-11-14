@@ -4,7 +4,7 @@ class CViewport;
 struct SCameraDef;
 class CScene;
 
-class CCamera
+class CCamera : public IInputHandler
 {
 public:
     CCamera(SCameraDef* pCameraDef);
@@ -17,17 +17,26 @@ public:
     void SetScene(CScene* pScene);
     void Render();
 
-    void OnKeyPressed(int key);
-    void OnKeyReleased(int key);
-    void OnMouseMove(double xpos, double ypos);
+    void OnKeyPressed(int key) override;
+    void OnKeyReleased(int key) override;
+    void OnMouseMove(double xpos, double ypos) override;
+    void GetMousePos(double & xpos, double & ypos) override;
+    void OnLeftMouseButtonPressed(int modifier) override;
+    void OnRightMouseButtonPressed(int modifier) override;
+    void OnLeftMouseButtonReleased(int modifier) override;
+    void OnRightMouseButtonReleased(int modifier) override;
 
 private:
     CViewport* m_pViewport;
     SCameraDef* m_pCameraDef;
     glm::vec3 m_vPosition;
-    glm::vec3 m_vTarget;
+    glm::vec3 m_vDirection;
     glm::vec3 m_vUp;
     CScene* m_pScene;
+    bool m_bDragging;
+    glm::dvec2 m_vMousePreviousPos;
+    glm::vec3 m_vEulerAngles;
+    float m_fCameraSensitivity;
 };
 
 
