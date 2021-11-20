@@ -9,6 +9,7 @@ class CCamera : public IInputHandler
 public:
     CCamera(SCameraDef* pCameraDef);
     void SetPosition(glm::vec3 pos);
+    glm::vec3 GetPosition();
     void SetTarget(glm::vec3 target);
     void SetUp(glm::vec3 up);
     void Attach(CViewport* pViewport);

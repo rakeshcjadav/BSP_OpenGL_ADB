@@ -15,7 +15,8 @@ public:
 
 private:
     CMesh* m_pMesh;
-    CProgram* m_pProgram;
+    CProgram* m_pUnlitProgram;
+    CProgram* m_pLitProgram;
     CTexture* m_pTexture;
     CTexture* m_pTexture2;
     CCamera* m_pCamera;

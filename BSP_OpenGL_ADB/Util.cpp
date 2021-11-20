@@ -34,3 +34,28 @@ std::string CUtil::GetTexturePath()
 {
     return GetMediaPath() + "textures\\";
 }
+
+std::string CUtil::GetShaderPath()
+{
+    return GetMediaPath() + "shaders\\";
+}
+
+std::string CUtil::LoadShader(std::string strFileName)
+{
+	std::string shaderFilePath = GetShaderPath();
+
+	std::ifstream file(shaderFilePath.append(strFileName));
+	//LOG_INFO << "Loading Shader : " << shaderFile << LOG_END;
+	std::string shaderSource;
+	if (file.is_open())
+	{
+		std::string line;
+		while (std::getline(file, line))
+		{
+			shaderSource += line + "\n";
+		}
+	}
+
+	file.close();
+	return shaderSource;
+}

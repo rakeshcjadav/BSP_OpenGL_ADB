@@ -177,6 +177,12 @@
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\media\shaders\lit.frag" />
+    <None Include="..\media\shaders\lit.vert" />
+    <None Include="..\media\shaders\unlit_diffuse.frag" />
+    <None Include="..\media\shaders\unlit_diffuse.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

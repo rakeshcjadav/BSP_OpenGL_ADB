@@ -16,6 +16,11 @@ void CCamera::SetPosition(glm::vec3 pos)
     m_vPosition = pos;
 }
 
+glm::vec3 CCamera::GetPosition()
+{
+    return m_vPosition;
+}
+
 void CCamera::SetTarget(glm::vec3 target)
 {
     m_vDirection = glm::normalize(target - m_vPosition);

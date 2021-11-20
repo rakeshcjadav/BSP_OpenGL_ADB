@@ -78,12 +78,18 @@ CMesh::CMesh(SMeshData* pMeshData)
         glBindBuffer(GL_ARRAY_BUFFER, VBOPos);
         glBufferData(GL_ARRAY_BUFFER, sizeof(SVertex)*pMeshData->aVertices.size(), pMeshData->aVertices.data(), GL_STATIC_DRAW);
 
-        // at location 0, read 4 floats and jump (stride) 4 floats for next vertex.
+        // Position
+        // at location 0, read 3 floats and jump (stride) 4 floats for next vertex.
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)0);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(2*sizeof(glm::vec3)));
+        // Normal
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)sizeof(glm::vec3));
         glEnableVertexAttribArray(1);
+
+        // UV
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(2*sizeof(glm::vec3)));
+        glEnableVertexAttribArray(2);
 
         /*
         unsigned int VBOCol;
