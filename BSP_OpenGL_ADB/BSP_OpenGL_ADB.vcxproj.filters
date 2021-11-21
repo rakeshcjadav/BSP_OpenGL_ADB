@@ -109,5 +109,11 @@
     <None Include="..\media\shaders\lit.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="..\media\shaders\lit_diffuse.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\media\shaders\lit_diffuse.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

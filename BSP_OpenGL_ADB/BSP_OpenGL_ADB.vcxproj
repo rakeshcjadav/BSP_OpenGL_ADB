@@ -180,6 +180,8 @@
   <ItemGroup>
     <None Include="..\media\shaders\lit.frag" />
     <None Include="..\media\shaders\lit.vert" />
+    <None Include="..\media\shaders\lit_diffuse.frag" />
+    <None Include="..\media\shaders\lit_diffuse.vert" />
     <None Include="..\media\shaders\unlit_diffuse.frag" />
     <None Include="..\media\shaders\unlit_diffuse.vert" />
   </ItemGroup>

@@ -28,9 +28,13 @@ void CScene::LoadScene()
 {
     m_pUnlitProgram = CreateProgram("unlit_diffuse", "unlit_diffuse.vert", "unlit_diffuse.frag");
     m_pLitProgram = CreateProgram("lit", "lit.vert", "lit.frag");
+    m_pLitDiffuseProgram = CreateProgram("lit_diffuse", "lit_diffuse.vert", "lit_diffuse.frag");
 
     m_pTexture = new CTexture(CUtil::GetTexturePath() + "minions\\minion.png");
     m_pTexture2 = new CTexture(CUtil::GetTexturePath() + "minions\\minion.jpg");
+
+    m_pContainerTexture = new CTexture(CUtil::GetTexturePath() + "container.png");
+    m_pContainerSpecularTexture = new CTexture(CUtil::GetTexturePath() + "container_specular.png");
 
     m_pMesh = CMesh::CreateCube();
     m_pPlane = CMesh::CreateRectangle();
@@ -86,11 +90,11 @@ void CScene::Render(CCamera* pCamera)
     }
     m_pMesh->Render();
 
-    glm::vec3 lightPos(0.0f, 2.0f, -2.0f);
+    glm::vec3 lightPos(0.0f, 3.0f, -2.0f);
     {
-        m_pLitProgram->Use();
-        m_pLitProgram->SetUniform("uMatCamera", matCamera);
-        m_pLitProgram->SetUniform("uMatProjection", matProjection);
+        m_pLitDiffuseProgram->Use();
+        m_pLitDiffuseProgram->SetUniform("uMatCamera", matCamera);
+        m_pLitDiffuseProgram->SetUniform("uMatProjection", matProjection);
         glm::mat4 matModel = glm::identity<glm::mat4>();
         matModel = glm::translate(matModel, glm::vec3(-2.0f, 0.0f, -4.0f));
         matModel = glm::rotate(matModel, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -98,31 +102,38 @@ void CScene::Render(CCamera* pCamera)
         //matModel = glm::translate(matModel, glm::vec3(-0.5f, -0.5f, 0.0f));
 
         //matModel = glm::scale(matModel, glm::vec3(693.0f / 760.0f, 1.0f, 1.0f)); // minion.png
-        m_pLitProgram->SetUniform("uMatModel", matModel);
+        m_pLitDiffuseProgram->SetUniform("uMatModel", matModel);
     }
     {
         glm::mat4 matModel = glm::identity<glm::mat4>();
-        //matModel = glm::rotate(matModel, glm::radians((float)glfwGetTime()*20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        matModel = glm::rotate(matModel, glm::radians((float)glfwGetTime()*20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //matModel = glm::translate(matModel, glm::vec3(-4.0f, 0.0f, -2.0f));
-        // lightPos = matModel * glm::vec4(lightPos, 1.0f);
+        lightPos = matModel * glm::vec4(lightPos, 1.0f);
         //std::cout << glm::to_string(lightPos) << std::endl;
-        m_pLitProgram->SetUniform("uLightPos", lightPos);
+        m_pLitDiffuseProgram->SetUniform("uPointLight.position", lightPos);
         glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-        m_pLitProgram->SetUniform("uLightColor", lightColor);
+        m_pLitDiffuseProgram->SetUniform("uPointLight.color", lightColor);
+        glm::vec3 lightAttenuation(1.0f, 0.1f, 0.01f);
+        m_pLitDiffuseProgram->SetUniform("uPointLight.attenuation", lightAttenuation);
     }
     {
-        m_pLitProgram->SetUniform("uCameraPos", cameraPos);
+        m_pLitDiffuseProgram->SetUniform("uCameraPos", cameraPos);
     }
     {
-        m_pLitProgram->SetUniform("uMaterial.ambient", glm::vec3(0.5f, 0.3f, 0.1f)*0.1f);
-        m_pLitProgram->SetUniform("uMaterial.diffuse", glm::vec3(0.5f, 0.3f, 0.1f));
-        m_pLitProgram->SetUniform("uMaterial.specular", glm::vec3(0.5f));
-        m_pLitProgram->SetUniform("uMaterial.shininess", 256.0f);
+        m_pLitDiffuseProgram->SetUniform("uMaterial.material.ambient", glm::vec3(0.1f));
+        m_pLitDiffuseProgram->SetUniform("uMaterial.material.diffuse", glm::vec3(1.0f));
+        m_pLitDiffuseProgram->SetUniform("uMaterial.material.specular", glm::vec3(1.0f));
+        m_pLitDiffuseProgram->SetUniform("uMaterial.material.shininess", 256.0f);
+
+        m_pContainerTexture->Bind(0);
+        m_pLitDiffuseProgram->SetUniform("uMaterial.DiffuseMap", 0);
+        m_pContainerSpecularTexture->Bind(1);
+        m_pLitDiffuseProgram->SetUniform("uMaterial.SpecularMap", 1);
     }
     m_pMesh->Render();
 
-
     {
+        m_pLitProgram->Use();
         m_pLitProgram->SetUniform("uMatCamera", matCamera);
         m_pLitProgram->SetUniform("uMatProjection", matProjection);
         glm::mat4 matModel = glm::identity<glm::mat4>();
@@ -132,10 +143,25 @@ void CScene::Render(CCamera* pCamera)
         m_pLitProgram->SetUniform("uMatModel", matModel);
     }
     {
+        //glm::mat4 matModel = glm::identity<glm::mat4>();
+        //matModel = glm::rotate(matModel, glm::radians((float)glfwGetTime()*20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //matModel = glm::translate(matModel, glm::vec3(-4.0f, 0.0f, -2.0f));
+        //lightPos = matModel * glm::vec4(lightPos, 1.0f);
+        //std::cout << glm::to_string(lightPos) << std::endl;
+        m_pLitProgram->SetUniform("uPointLight.position", lightPos);
+        glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+        m_pLitProgram->SetUniform("uPointLight.color", lightColor);
+        glm::vec3 lightAttenuation(1.0f, 0.1f, 0.01f);
+        m_pLitProgram->SetUniform("uPointLight.attenuation", lightAttenuation);
+    }
+    {
+        m_pLitProgram->SetUniform("uCameraPos", cameraPos);
+    }
+    {
         m_pLitProgram->SetUniform("uMaterial.ambient", glm::vec3(0.1f, 0.3f, 0.5f)*0.1f);
         m_pLitProgram->SetUniform("uMaterial.diffuse", glm::vec3(0.1f, 0.3f, 0.5f));
-        m_pLitProgram->SetUniform("uMaterial.specular", glm::vec3(0.5f));
-        m_pLitProgram->SetUniform("uMaterial.shininess", 1.0f);
+        m_pLitProgram->SetUniform("uMaterial.specular", glm::vec3(1.0f));
+        m_pLitProgram->SetUniform("uMaterial.shininess", 4.0f);
     }
     m_pPlane->Render();
 }
