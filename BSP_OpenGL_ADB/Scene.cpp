@@ -33,6 +33,7 @@ void CScene::LoadScene()
     m_pTexture2 = new CTexture(CUtil::GetTexturePath() + "minions\\minion.jpg");
 
     m_pMesh = CMesh::CreateCube();
+    m_pPlane = CMesh::CreateRectangle();
 
     m_pCamera = new CCamera(new SCameraDef(60.0f, 0.1f, 100.0f));
     m_pCamera->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
@@ -101,10 +102,10 @@ void CScene::Render(CCamera* pCamera)
     }
     {
         glm::mat4 matModel = glm::identity<glm::mat4>();
-        matModel = glm::rotate(matModel, glm::radians((float)glfwGetTime()*20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        matModel = glm::translate(matModel, glm::vec3(-4.0f, 0.0f, -2.0f));
-       // lightPos = matModel * glm::vec4(lightPos, 1.0f);
-        std::cout << glm::to_string(lightPos) << std::endl;
+        //matModel = glm::rotate(matModel, glm::radians((float)glfwGetTime()*20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //matModel = glm::translate(matModel, glm::vec3(-4.0f, 0.0f, -2.0f));
+        // lightPos = matModel * glm::vec4(lightPos, 1.0f);
+        //std::cout << glm::to_string(lightPos) << std::endl;
         m_pLitProgram->SetUniform("uLightPos", lightPos);
         glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
         m_pLitProgram->SetUniform("uLightColor", lightColor);
@@ -113,7 +114,28 @@ void CScene::Render(CCamera* pCamera)
         m_pLitProgram->SetUniform("uCameraPos", cameraPos);
     }
     {
-        m_pLitProgram->SetUniform("uObjectColor", glm::vec3(0.5f, 0.3f, 0.1f));
+        m_pLitProgram->SetUniform("uMaterial.ambient", glm::vec3(0.5f, 0.3f, 0.1f)*0.1f);
+        m_pLitProgram->SetUniform("uMaterial.diffuse", glm::vec3(0.5f, 0.3f, 0.1f));
+        m_pLitProgram->SetUniform("uMaterial.specular", glm::vec3(0.5f));
+        m_pLitProgram->SetUniform("uMaterial.shininess", 256.0f);
     }
     m_pMesh->Render();
+
+
+    {
+        m_pLitProgram->SetUniform("uMatCamera", matCamera);
+        m_pLitProgram->SetUniform("uMatProjection", matProjection);
+        glm::mat4 matModel = glm::identity<glm::mat4>();
+        matModel = glm::translate(matModel, glm::vec3(0.0f, -0.5f, 0.0f));
+        matModel = glm::rotate(matModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        matModel = glm::scale(matModel, glm::vec3(10.0f, 10.0f, 1.0f));
+        m_pLitProgram->SetUniform("uMatModel", matModel);
+    }
+    {
+        m_pLitProgram->SetUniform("uMaterial.ambient", glm::vec3(0.1f, 0.3f, 0.5f)*0.1f);
+        m_pLitProgram->SetUniform("uMaterial.diffuse", glm::vec3(0.1f, 0.3f, 0.5f));
+        m_pLitProgram->SetUniform("uMaterial.specular", glm::vec3(0.5f));
+        m_pLitProgram->SetUniform("uMaterial.shininess", 1.0f);
+    }
+    m_pPlane->Render();
 }
