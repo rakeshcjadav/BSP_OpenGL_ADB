@@ -23,6 +23,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include"stb_image.h"
 
+// ASSIMP 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 // Local Include
 #include"Util.h"
 #include"InputHandler.h"

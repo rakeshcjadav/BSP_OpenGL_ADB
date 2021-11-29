@@ -6,6 +6,7 @@ public:
     static std::string GetMediaPath();
     static std::string GetTexturePath();
     static std::string GetShaderPath();
+    static std::string GetModelPath();
     static std::string LoadShader(std::string strFileName);
 private:
     static std::string GetEnv(std::string strName);

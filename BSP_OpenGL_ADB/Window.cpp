@@ -53,6 +53,8 @@ CWindow::CWindow(int width, int height, std::string strName)
     glfwSetKeyCallback(m_pGLFWWindow, CWindow::OnKey);
     glfwSetMouseButtonCallback(m_pGLFWWindow, CWindow::OnMouseButton);
 
+    //glEnable(GL_FRAMEBUFFER_SRGB);
+
     s_mapWindows[m_pGLFWWindow] = this;
 }
 

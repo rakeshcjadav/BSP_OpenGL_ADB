@@ -137,11 +137,11 @@ void main()
     // Directinal Light
     vec3 ambientColor = CalcAmbient(uDirectionalLight.color, uMaterial.ambient);
     // Point Light
-    float fAttenuation = CalcAttenuation(uPointLight.position, PositionFrag);
-    ambientColor += CalcAmbient(uPointLight.color, uMaterial.ambient) * fAttenuation;
+    //float fAttenuation = CalcAttenuation(uPointLight.position, PositionFrag);
+    //ambientColor += CalcAmbient(uPointLight.color, uMaterial.ambient) * fAttenuation;
     // Spot Light
-    fAttenuation = CalcAttenuation(uSpotLight.position, PositionFrag);
-    ambientColor += CalcAmbient(uSpotLight.color, uMaterial.ambient) * fAttenuation;
+    //fAttenuation = CalcAttenuation(uSpotLight.position, PositionFrag);
+    //ambientColor += CalcAmbient(uSpotLight.color, uMaterial.ambient) * fAttenuation;
 
     // Diffuse
     vec3 diffuseColor = vec3(0.0f);

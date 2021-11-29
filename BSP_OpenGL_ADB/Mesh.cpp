@@ -10,7 +10,10 @@ CMesh* CMesh::CreateRectangle()
     data.aVertices.push_back(SVertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)));
     data.aVertices.push_back(SVertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)));
 
-    data.aIndices = { 0, 1, 2, 0, 2, 3 };
+    data.aIndices = { 
+        0, 1, 2, 
+        0, 2, 3 
+    };
 
     return new CMesh(&data);
 }
@@ -27,11 +30,11 @@ CMesh* CMesh::CreateCube()
     
     std::vector<glm::vec3> angles;
     angles.push_back(glm::vec3(0.0f, 0.0f, 0.0f));      // Front
-    angles.push_back(glm::vec3(0.0f, 180.0f, 0.0f));      // Back
-    angles.push_back(glm::vec3(0.0f, 90.0f, 0.0f));     // Left
-    angles.push_back(glm::vec3(0.0f, -90.0f, 0.0f));    // Right
+    angles.push_back(glm::vec3(180.0f, 0.0f, 0.0f));     // Back
+    angles.push_back(glm::vec3(0.0f, -90.0f, 0.0f));     // Left
+    angles.push_back(glm::vec3(0.0f, 90.0f, 0.0f));    // Right
     angles.push_back(glm::vec3(90.0f, 0.0f, 0.0f));      // Top
-    angles.push_back(glm::vec3(-90.0f, 0.0f, 0.0f));      // bottom
+    angles.push_back(glm::vec3(-90.0f, 0.0f, 0.0f));     // bottom
     
     int face = 0;
     int vertexOffset = 4;
@@ -41,7 +44,7 @@ CMesh* CMesh::CreateCube()
         for (const SVertex& vertex : tempVertices)
         {
             glm::vec3 pos = mat * vertex.position;
-            glm::vec3 normal = mat * vertex.normal;
+            glm::vec3 normal = glm::normalize(mat * vertex.normal);
             data.aVertices.push_back(SVertex(pos, normal, vertex.uv));
         }
         data.aIndices.push_back(face * vertexOffset);

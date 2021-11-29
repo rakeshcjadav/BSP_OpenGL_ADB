@@ -1,5 +1,6 @@
 #pragma once
 
+class CModel;
 class CMesh;
 class CProgram;
 class CTexture;
@@ -24,4 +25,6 @@ private:
     CTexture* m_pContainerTexture;
     CTexture* m_pContainerSpecularTexture;
     CCamera* m_pCamera;
+
+    CModel* m_pModelBackpack;
 };

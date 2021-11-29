@@ -19,6 +19,7 @@ void main()
 
     // Normal Direction of a vertex in World Space
     NormalFrag = mat3(transpose(inverse(uMatModel))) * aNormal;
+    //NormalFrag = normalize(NormalFrag);
 
     // Vertex Position in World Space
     PositionFrag = vec3(uMatModel * vec4(aPos, 1.0));

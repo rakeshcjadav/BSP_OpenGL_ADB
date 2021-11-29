@@ -40,6 +40,11 @@ std::string CUtil::GetShaderPath()
     return GetMediaPath() + "shaders\\";
 }
 
+std::string CUtil::GetModelPath()
+{
+    return GetMediaPath() + "models\\";
+}
+
 std::string CUtil::LoadShader(std::string strFileName)
 {
 	std::string shaderFilePath = GetShaderPath();

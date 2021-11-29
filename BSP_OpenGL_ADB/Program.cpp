@@ -40,6 +40,11 @@ void CProgram::SetUniform(std::string strName, float value)
     glUniform1f(glGetUniformLocation(m_IDProgram, strName.c_str()), value);
 }
 
+void CProgram::SetUniform(std::string strName, glm::vec2 value)
+{
+    glUniform2fv(glGetUniformLocation(m_IDProgram, strName.c_str()), 1, glm::value_ptr(value));
+}
+
 void CProgram::SetUniform(std::string strName, glm::vec3 value)
 {
     glUniform3fv(glGetUniformLocation(m_IDProgram, strName.c_str()), 1, glm::value_ptr(value));
