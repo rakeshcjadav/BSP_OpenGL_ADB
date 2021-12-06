@@ -28,6 +28,7 @@ unsigned int CProgram::GetID()
 void CProgram::Use()
 {
     glUseProgram(m_IDProgram);
+    SetUniform("uMaterial.DiffuseMapTiling", glm::vec2(1.0f, 1.0f));
 }
 
 void CProgram::SetUniform(std::string strName, int value)

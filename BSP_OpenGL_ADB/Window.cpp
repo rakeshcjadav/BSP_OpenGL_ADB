@@ -120,7 +120,7 @@ void CWindow::GetMousePos(double & xpos, double & ypos)
 
 void CWindow::HandleOnKey(int key, int scancode, int action, int modifier)
 {
-    std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Modifier: " << modifier << std::endl;
+    //std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Modifier: " << modifier << std::endl;
     for (IInputHandler* pHandler : m_listHandlers)
     {
         if (action == GLFW_PRESS)

@@ -55,9 +55,19 @@ std::string CUtil::LoadShader(std::string strFileName)
 	if (file.is_open())
 	{
 		std::string line;
+		std::regex reg("[ ]*#include[ ]*\"(.*)\"");
 		while (std::getline(file, line))
 		{
-			shaderSource += line + "\n";
+			std::smatch matches;
+			// search and include reference shader file
+			if (std::regex_search(line, matches, reg))
+			{
+				shaderSource += LoadShader(matches.str(1));
+			}
+			else
+			{
+				shaderSource += line + "\n";
+			}
 		}
 	}
 

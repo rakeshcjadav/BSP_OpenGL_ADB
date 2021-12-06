@@ -15,8 +15,6 @@ public:
     CCamera* GetCamera();
 
 private:
-    CMesh* m_pMesh;
-    CMesh* m_pPlane;
     CProgram* m_pUnlitProgram;
     CProgram* m_pLitProgram;
     CProgram* m_pLitDiffuseProgram;
@@ -27,4 +25,16 @@ private:
     CCamera* m_pCamera;
 
     CModel* m_pModelBackpack;
+
+    CModel* m_pModelCrate;
+    CModel* m_pModelMinion;
+    CModel* m_pModelGround;
+
+    CLight* m_pDirectionalLight;
+    CLight* m_pSpotLight;
+    CLight* m_pPointLight;
+
+    CMaterial* m_pLitCrateMaterial;
+    CMaterial* m_pUnlitCrateMaterial;
+    CMaterial* m_pLitGround;
 };

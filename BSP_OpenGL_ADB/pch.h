@@ -6,6 +6,8 @@
 #include<list>
 #include<map>
 #include<fstream>
+#include<filesystem>
+#include<regex>
 
 // OpenGL
 #include"GL/glew.h"
@@ -32,3 +34,4 @@
 #include"Util.h"
 #include"InputHandler.h"
 #include"InputDelegator.h"
+#include"Light.h"

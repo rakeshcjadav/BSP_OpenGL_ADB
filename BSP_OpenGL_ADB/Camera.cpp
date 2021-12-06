@@ -134,9 +134,9 @@ void CCamera::GetMousePos(double& xpos, double& ypos)
 void CCamera::OnLeftMouseButtonPressed(int modifier)
 {
     m_bDragging = true;
-    std::cout << "Left Mouse Button Pressed " << modifier << std::endl;
+    //std::cout << "Left Mouse Button Pressed " << modifier << std::endl;
     GetMousePos(m_vMousePreviousPos.x, m_vMousePreviousPos.y);
-    std::cout << m_vMousePreviousPos.y << std::endl;
+    //std::cout << m_vMousePreviousPos.y << std::endl;
 }
 
 void CCamera::OnRightMouseButtonPressed(int modifier)
@@ -147,7 +147,7 @@ void CCamera::OnRightMouseButtonPressed(int modifier)
 void CCamera::OnLeftMouseButtonReleased(int modifier)
 {
     m_bDragging = false;
-    std::cout << "Left Mouse Button Released " << modifier << std::endl;
+    //std::cout << "Left Mouse Button Released " << modifier << std::endl;
 }
 
 void CCamera::OnRightMouseButtonReleased(int modifier)
