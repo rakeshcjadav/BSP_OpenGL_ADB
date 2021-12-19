@@ -82,11 +82,15 @@ int main()
         glFrontFace(GL_CCW);
         glEnable(GL_SCISSOR_TEST);
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
 
     }
 
-    CViewport* pViewport = new CViewport(glm::ivec4(0, 0, width, height));
-    pWindow->Attach(pViewport);
+    CViewport* pViewportLeft = new CViewport(glm::ivec4(0, 0, width, height));
+    pWindow->Attach(pViewportLeft);
+
+    //CViewport* pViewportRight = new CViewport(glm::ivec4(width/2, 0, width/2, height));
+    //pWindow->Attach(pViewportRight);
 
     /* Loop until the user closes the window */
     while (!pWindow->IsWindowClosed())

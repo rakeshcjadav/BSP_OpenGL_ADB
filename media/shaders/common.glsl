@@ -124,3 +124,13 @@ vec3 Specular(SpotLight spotLight, vec3 normal, vec3 pos, vec3 cameraPos, Materi
     float fAttenuation = CalcAttenuation(spotLight.position, spotLight.attenuation, pos);
     return spotLight.color * CalcSpecular(cameraPos, lightDirection, pos, normal, mat) * fAttenuation;
 }
+
+// TODO: pass as uniform
+float near = 0.1f;
+float far = 100.0f;
+
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}

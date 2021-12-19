@@ -61,4 +61,8 @@ void main()
     finalColor += specularColor;
 
     FragColor = vec4(finalColor, 1.0);
+
+    float fLinearDepth = LinearizeDepth(gl_FragCoord.z)/far;
+
+    FragColor = vec4(vec3(fLinearDepth), 1.0);
 };

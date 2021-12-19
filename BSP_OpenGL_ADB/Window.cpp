@@ -84,25 +84,32 @@ void CWindow::PollEvents()
 
 void CWindow::Attach(CViewport* pViewport)
 {
-    //m_listViewports.push_back(pViewport);
-    m_pViewport = pViewport;
+    m_listViewports.push_back(pViewport);
+    //m_pViewport = pViewport;
 }
 
 void CWindow::Render()
 {
-    /*
     for (CViewport* pViewport : m_listViewports)
     {
         pViewport->Clear();
         pViewport->Render(m_pScene->GetCamera());
-    }*/
-    m_pViewport->Clear();
-    m_pViewport->Render(m_pScene->GetCamera());
+    }
+    //m_pViewport->Clear();
+    //m_pViewport->Render(m_pScene->GetCamera());
 }
 
 void CWindow::HandleWindowResize(int width, int height)
 {
-    m_pViewport->SetSize(width, height);
+    int x = 0;
+    int y = 0;
+    for (CViewport* pViewport : m_listViewports)
+    {
+        pViewport->SetPosition(x, y);
+        pViewport->SetSize(width/2, height);
+        x += width / 2;
+    }
+    //m_pViewport->SetSize(width, height);
 }
 
 void CWindow::HandleMouseMove(double xpos, double ypos)

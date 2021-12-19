@@ -107,7 +107,7 @@ void CScene::LoadScene()
         new CTransform(glm::vec3(0.0f, 2.0f, 0.0f)), 
         CUtil::GetModelPath() + "backpack\\backpack.obj");
     m_pModelCrate = CModel::Load(new CTransform(glm::vec3(2.0f, 0.0f, -4.0f)), CMesh::CreateCube(), m_pLitCrateMaterial);
-    m_pModelMinion = CModel::Load(new CTransform(glm::vec3(-2.0f, 0.0f, -4.0f)), CMesh::CreateCube(), m_pUnlitCrateMaterial);
+    m_pModelMinion = CModel::Load(new CTransform(glm::vec3(1.5f, 0.0f, -4.0f)), CMesh::CreateCube(), m_pUnlitCrateMaterial);
     m_pModelGround = CModel::Load(
         new CTransform(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(50.0f, 50.0f, 1.0f)),
         CMesh::CreateRectangle(), m_pLitGround);
@@ -136,7 +136,7 @@ CCamera* CScene::GetCamera()
 void CScene::Render(CCamera* pCamera)
 {
     m_pModelGround->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
-    m_pModelCrate->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
     m_pModelMinion->Render(pCamera);
+    m_pModelCrate->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
     m_pModelBackpack->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
 }

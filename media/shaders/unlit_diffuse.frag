@@ -1,4 +1,5 @@
 #version 330 core
+#include "common.glsl"
 
 in vec3 colorFrag;
 in vec2 UVFrag;

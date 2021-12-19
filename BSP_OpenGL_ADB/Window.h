@@ -32,7 +32,7 @@ private:
     static std::map<GLFWwindow*, CWindow*> s_mapWindows;
 
     GLFWwindow* m_pGLFWWindow;
-    //std::list<CViewport*> m_listViewports;
-    CViewport* m_pViewport;
+    std::list<CViewport*> m_listViewports;
+    //CViewport* m_pViewport;
     CScene* m_pScene;
 };
