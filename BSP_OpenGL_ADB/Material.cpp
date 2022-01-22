@@ -3,6 +3,13 @@
 #include"Program.h"
 #include"Texture.h"
 
+CMaterial::CMaterial(std::string strName, SMaterialDef* pDef, CProgram* pProgram)
+{
+    m_strName = strName;
+    m_pMaterialDef = pDef;
+    m_pProgram = pProgram;
+}
+
 CMaterial::CMaterial(std::string strName, SMaterialDef * pDef, CProgram * pProgram, std::map<std::string, CTexture*> mapTextures)
 {
     m_strName = strName;

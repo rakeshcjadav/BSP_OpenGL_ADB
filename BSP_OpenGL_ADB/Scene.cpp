@@ -39,6 +39,7 @@ void CScene::LoadScene()
     m_pCamera->SetScene(this);
 
     m_pUnlitProgram = CreateProgram("unlit_diffuse", "unlit_diffuse.vert", "unlit_diffuse.frag");
+    m_pOutline = CreateProgram("outline", "outline.vert", "outline.frag");
     m_pLitProgram = CreateProgram("lit", "lit.vert", "lit.frag");
     m_pLitDiffuseProgram = CreateProgram("lit_diffuse", "lit_diffuse.vert", "lit_diffuse.frag");
 
@@ -97,6 +98,12 @@ void CScene::LoadScene()
     }
 
     {
+        SMaterialDef* pMaterialDef = new SMaterialDef();
+        pMaterialDef->diffuseColor = glm::vec3(0.0f, 1.0f, 0.0f);
+        m_pOutlineMaterial = new CMaterial("outline", pMaterialDef, m_pOutline);
+    }
+
+    {
         std::map<std::string, CTexture*> mapTextures;
         mapTextures["Texture"] = m_pTexture;
         mapTextures["Second"] = m_pTexture2;
@@ -107,7 +114,7 @@ void CScene::LoadScene()
         new CTransform(glm::vec3(0.0f, 2.0f, 0.0f)), 
         CUtil::GetModelPath() + "backpack\\backpack.obj");
     m_pModelCrate = CModel::Load(new CTransform(glm::vec3(2.0f, 0.0f, -4.0f)), CMesh::CreateCube(), m_pLitCrateMaterial);
-    m_pModelMinion = CModel::Load(new CTransform(glm::vec3(1.5f, 0.0f, -4.0f)), CMesh::CreateCube(), m_pUnlitCrateMaterial);
+    m_pModelMinion = CModel::Load(new CTransform(glm::vec3(-2.0f, 0.0f, -4.0f)), CMesh::CreateCube(), m_pUnlitCrateMaterial);
     m_pModelGround = CModel::Load(
         new CTransform(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(50.0f, 50.0f, 1.0f)),
         CMesh::CreateRectangle(), m_pLitGround);
@@ -135,8 +142,27 @@ CCamera* CScene::GetCamera()
 
 void CScene::Render(CCamera* pCamera)
 {
-    m_pModelGround->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    // Render opaque objects
+    // Depth Sorted : Objects far from camera will be rendered first
+    // Render transparent objects
+
+    glStencilMask(0x00);
+
+    m_pModelGround->Render(pCamera, nullptr, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+
     m_pModelMinion->Render(pCamera);
-    m_pModelCrate->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
-    m_pModelBackpack->Render(pCamera, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+    m_pModelCrate->Render(pCamera, nullptr, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+    m_pModelCrate->Render(pCamera, m_pOutlineMaterial, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    m_pModelBackpack->Render(pCamera, m_pOutlineMaterial, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glEnable(GL_DEPTH_TEST);
 }

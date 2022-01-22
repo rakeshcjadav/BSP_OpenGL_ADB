@@ -18,6 +18,8 @@ private:
     CProgram* m_pUnlitProgram;
     CProgram* m_pLitProgram;
     CProgram* m_pLitDiffuseProgram;
+    CProgram* m_pOutline;
+
     CTexture* m_pTexture;
     CTexture* m_pTexture2;
     CTexture* m_pContainerTexture;
@@ -37,4 +39,6 @@ private:
     CMaterial* m_pLitCrateMaterial;
     CMaterial* m_pUnlitCrateMaterial;
     CMaterial* m_pLitGround;
+
+    CMaterial* m_pOutlineMaterial;
 };

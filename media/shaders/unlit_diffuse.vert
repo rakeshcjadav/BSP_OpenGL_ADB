@@ -10,10 +10,6 @@ uniform mat4 uMatModel;
 uniform mat4 uMatCamera;
 uniform mat4 uMatProjection;
 
-const float PI = 3.14;
-const float Angle = 90.0f * PI/180.0f;
-
-out vec3 colorFrag;
 out vec2 UVFrag;
 
 void main()

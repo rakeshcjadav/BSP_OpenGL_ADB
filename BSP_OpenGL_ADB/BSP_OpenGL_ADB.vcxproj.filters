@@ -160,5 +160,11 @@
     <None Include="..\media\shaders\common.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="..\media\shaders\outline.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\media\shaders\outline.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

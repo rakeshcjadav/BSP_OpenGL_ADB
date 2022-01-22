@@ -10,7 +10,7 @@ class CModel
 public:
     static CModel* Load(CTransform* pTransform, std::string strFilePath);
     static CModel* Load(CTransform* pTransform, CMesh * pMesh, CMaterial * pMaterial);
-    void Render(CCamera* pCamera, CLight* pDirectionalLight = nullptr, CLight* pPointLight = nullptr, CLight* pSpotLight = nullptr);
+    void Render(CCamera* pCamera, CMaterial* pOverride = nullptr, CLight* pDirectionalLight = nullptr, CLight* pPointLight = nullptr, CLight* pSpotLight = nullptr);
 
 private:
     CModel(CTransform* pTransform);

@@ -49,14 +49,16 @@ CModel::CModel(CTransform* pTransform):
 
 }
 
-void CModel::Render(CCamera* pCamera, CLight * pDirectionalLight, CLight * pPointLight, CLight * pSpotLight)
+void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, CLight * pPointLight, CLight * pSpotLight)
 {
     glm::mat4 matCamera = pCamera->GetCameraMatrix();
     glm::mat4 matProjection = pCamera->GetPerspectiveProjectionMatrix();
     glm::vec3 cameraPos = pCamera->GetPosition();
     for (auto pair : m_mapMeshes)
     {
-        CMaterial * pMaterial = m_mapMaterials[pair.first];
+        CMaterial* pMaterial = pOverride;
+        if(!pMaterial)
+            pMaterial = m_mapMaterials[pair.first];
         pMaterial->Bind();
 
         if(pDirectionalLight)

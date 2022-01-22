@@ -7,6 +7,7 @@ struct SMaterialDef;
 class CMaterial
 {
 public:
+    CMaterial(std::string strName, SMaterialDef* pDef, CProgram* pProgram);
     CMaterial(std::string strName, SMaterialDef * pDef, CProgram * pProgram, std::map<std::string, CTexture *> mapTextures);
 
     std::string GetName();

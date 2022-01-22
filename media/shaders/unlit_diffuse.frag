@@ -1,10 +1,8 @@
 #version 330 core
 #include "common.glsl"
 
-in vec3 colorFrag;
 in vec2 UVFrag;
 
-uniform vec3 uColor[2];
 uniform sampler2D Texture;
 uniform sampler2D Second;
 

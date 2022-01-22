@@ -55,6 +55,4 @@ void main()
     finalColor += specularColor;
 
     FragColor = vec4(finalColor, 1.0);
-
-    FragColor = vec4(vec3(gl_FragCoord.z), 1.0);
 };

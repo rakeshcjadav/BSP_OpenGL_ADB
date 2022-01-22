@@ -75,6 +75,17 @@ int main()
         //glBlendFunc(GL_ONE, GL_ZERO); // Opaque or Replace blend
         //glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ZERO);
 
+        // 1. Enable blending
+        // glEnable(GL_BLEND);
+        // 2.1 Define blend factors for whole color ( RGBA )
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // 2.2 Define separate blend factors for color (RGB) and alpha
+        // glBlendFuncSeparate(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
+        // 3.1 Define blend equation for whole color ( RGBA )
+        // glBlendEquation(GL_FUNC_ADD);
+        // 3.2 Define blend equation for color (RGB) blend and alpha blend
+        // glBlendEquationSeparate(GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_ADD);
+
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glEnable(GL_CULL_FACE);
@@ -84,6 +95,8 @@ int main()
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     }
 
     CViewport* pViewportLeft = new CViewport(glm::ivec4(0, 0, width, height));
