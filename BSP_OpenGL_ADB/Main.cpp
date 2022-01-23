@@ -54,8 +54,8 @@ int main()
     getchar();
     return 0;
     */
-    int width = 1280;
-    int height = 720;
+    int width = 1920;
+    int height = 1080;
     CWindow* pWindow = nullptr;
     {
         /* Initialize the library */
@@ -88,8 +88,8 @@ int main()
 
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        //glEnable(GL_CULL_FACE);
+        //glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
         glEnable(GL_SCISSOR_TEST);
         glEnable(GL_DEPTH_TEST);

@@ -11,6 +11,7 @@
 #include"SpotLight.h"
 #include"Material.h"
 #include"Transform.h"
+#include"FrameBuffer.h"
 
 CProgram* CreateProgram(std::string name, std::string vertShader, std::string fragShader)
 {
@@ -43,11 +44,11 @@ void CScene::LoadScene()
     m_pLitProgram = CreateProgram("lit", "lit.vert", "lit.frag");
     m_pLitDiffuseProgram = CreateProgram("lit_diffuse", "lit_diffuse.vert", "lit_diffuse.frag");
 
-    m_pTexture = new CTexture(CUtil::GetTexturePath() + "minions\\minion.png");
-    m_pTexture2 = new CTexture(CUtil::GetTexturePath() + "minions\\minion.jpg");
+    m_pTexture = new CFileTexture(CUtil::GetTexturePath() + "minions\\minion.png");
+    m_pTexture2 = new CFileTexture(CUtil::GetTexturePath() + "minions\\minion.jpg");
 
-    m_pContainerTexture = new CTexture(CUtil::GetTexturePath() + "container.png");
-    m_pContainerSpecularTexture = new CTexture(CUtil::GetTexturePath() + "container_specular.png");
+    m_pContainerTexture = new CFileTexture(CUtil::GetTexturePath() + "container.png");
+    m_pContainerSpecularTexture = new CFileTexture(CUtil::GetTexturePath() + "container_specular.png");
 
     glm::vec3 sunLightDirection(1.0f, 1.0f, 1.0f);
     sunLightDirection = glm::normalize(sunLightDirection);
@@ -119,6 +120,8 @@ void CScene::LoadScene()
         new CTransform(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(50.0f, 50.0f, 1.0f)),
         CMesh::CreateRectangle(), m_pLitGround);
 
+    m_pModelFBO = CModel::Load(new CTransform(glm::vec3(0.0f, 0.0f, -6.0f), glm::vec3(0.0f), glm::vec3(5.0f, 5.0, 1.0)), CMesh::CreateCube(), m_pUnlitCrateMaterial);
+
     /*
     // World Space
     glm::mat4 matModel = glm::identity<glm::mat4>();
@@ -133,6 +136,15 @@ void CScene::LoadScene()
 
     m_pProgram->SetUniform("uMatModel", matModel);
     */
+
+    m_pOffScreenFrameBuffer = new CFrameBuffer("OffScreen", 1024, 1024);
+
+    {
+        std::map<std::string, CTexture*> mapTextures;
+        mapTextures["Texture"] = m_pOffScreenFrameBuffer->GetColorAttachment();
+        mapTextures["Second"] = m_pOffScreenFrameBuffer->GetNormalAttachment();
+        m_pUnlitFBOMaterial = new CMaterial("UnlitFBO", nullptr, m_pUnlitProgram, mapTextures);
+    }
 }
 
 CCamera* CScene::GetCamera()
@@ -145,6 +157,12 @@ void CScene::Render(CCamera* pCamera)
     // Render opaque objects
     // Depth Sorted : Objects far from camera will be rendered first
     // Render transparent objects
+
+    m_pOffScreenFrameBuffer->Bind();
+    m_pOffScreenFrameBuffer->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    m_pModelMinion->Render(pCamera);
+    m_pOffScreenFrameBuffer->UnBind();
 
     glStencilMask(0x00);
 
@@ -165,4 +183,6 @@ void CScene::Render(CCamera* pCamera)
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glEnable(GL_DEPTH_TEST);
+
+    m_pModelFBO->Render(pCamera, m_pUnlitFBOMaterial, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
 }

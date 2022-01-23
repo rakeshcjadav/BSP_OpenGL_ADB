@@ -1,10 +1,10 @@
 #include"pch.h"
 #include"Texture.h"
 
-
-CTexture::CTexture(std::string strFileName)
+// CTexture
+CTexture::CTexture(std::string strName)
 {
-    m_IDTexture = LoadTexture(strFileName);
+    m_strName = strName;
 }
 
 void CTexture::Bind(unsigned int index)
@@ -13,7 +13,29 @@ void CTexture::Bind(unsigned int index)
     glBindTexture(GL_TEXTURE_2D, m_IDTexture);
 }
 
-unsigned int CTexture::LoadTexture(std::string strFileName)
+unsigned int CTexture::GetID()
+{
+    return m_IDTexture;
+}
+
+CTexture::~CTexture()
+{
+
+}
+
+// CFileTexture
+CFileTexture::CFileTexture(std::string strFileName):
+    CTexture(strFileName)
+{
+    m_IDTexture = LoadTexture(strFileName);
+}
+
+CFileTexture::~CFileTexture()
+{
+
+}
+
+unsigned int CFileTexture::LoadTexture(std::string strFileName)
 {
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
@@ -59,4 +81,23 @@ unsigned int CTexture::LoadTexture(std::string strFileName)
 
     stbi_image_free(data);
     return texture;
+}
+
+
+// CDynamicTexture
+CDynamicTexture::CDynamicTexture(std::string strName, GLint internalformat, GLsizei width, GLsizei height, GLint format, GLenum type):
+    CTexture(strName)
+{
+    glGenTextures(1, &m_IDTexture);
+    glBindTexture(GL_TEXTURE_2D, m_IDTexture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+CDynamicTexture::~CDynamicTexture()
+{
+
 }

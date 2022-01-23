@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="InputDelegator.cpp" />
@@ -173,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="InputDelegator.h" />

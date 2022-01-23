@@ -8,19 +8,22 @@ uniform mat4 uMatModel;
 uniform mat4 uMatCamera;
 uniform mat4 uMatProjection;
 
-out vec3 PositionFrag;
-out vec3 NormalFrag;
-out vec2 UVFrag;
+out OUT
+{
+    vec3 PositionFrag;
+    vec3 NormalFrag;
+    vec2 UVFrag;
+}vertOut;
 
 void main()
 {
     gl_Position = uMatProjection * uMatCamera * uMatModel * vec4(aPos, 1.0);
-    UVFrag = TexCoord;
+    vertOut.UVFrag = TexCoord;
 
     // Normal Direction of a vertex in World Space
-    NormalFrag = mat3(transpose(inverse(uMatModel))) * aNormal;
+    vertOut.NormalFrag = mat3(transpose(inverse(uMatModel))) * aNormal;
     //NormalFrag = normalize(NormalFrag);
 
     // Vertex Position in World Space
-    PositionFrag = vec3(uMatModel * vec4(aPos, 1.0));
+    vertOut.PositionFrag = vec3(uMatModel * vec4(aPos, 1.0));
 };

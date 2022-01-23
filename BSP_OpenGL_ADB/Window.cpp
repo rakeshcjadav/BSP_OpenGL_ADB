@@ -90,6 +90,7 @@ void CWindow::Attach(CViewport* pViewport)
 
 void CWindow::Render()
 {
+
     for (CViewport* pViewport : m_listViewports)
     {
         pViewport->Clear();

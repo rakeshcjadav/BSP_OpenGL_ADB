@@ -5,6 +5,7 @@ class CMesh;
 class CProgram;
 class CTexture;
 class CCamera;
+class CFrameBuffer;
 
 class CScene
 {
@@ -31,6 +32,7 @@ private:
     CModel* m_pModelCrate;
     CModel* m_pModelMinion;
     CModel* m_pModelGround;
+    CModel* m_pModelFBO;
 
     CLight* m_pDirectionalLight;
     CLight* m_pSpotLight;
@@ -40,5 +42,9 @@ private:
     CMaterial* m_pUnlitCrateMaterial;
     CMaterial* m_pLitGround;
 
+    CMaterial* m_pUnlitFBOMaterial;
+
     CMaterial* m_pOutlineMaterial;
+
+    CFrameBuffer* m_pOffScreenFrameBuffer;
 };

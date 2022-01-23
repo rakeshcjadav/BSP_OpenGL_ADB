@@ -13,7 +13,8 @@ uniform PointLight uPointLight;
 uniform SpotLight uSpotLight;
 uniform vec3 uCameraPos;
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 Normal;
 
 void main()
 {
@@ -60,5 +61,10 @@ void main()
     finalColor += diffuseColor;
     finalColor += specularColor;
 
+    vec3 normalColor;
+    normalColor.r = remap(normal.r, -1.0, 1.0, 0.0, 1.0);
+    normalColor.g = remap(normal.g, -1.0, 1.0, 0.0, 1.0);
+    normalColor.b = remap(normal.b, -1.0, 1.0, 0.0, 1.0);
     FragColor = vec4(finalColor, 1.0);
+    Normal = vec4(normalColor, 1.0);
 };

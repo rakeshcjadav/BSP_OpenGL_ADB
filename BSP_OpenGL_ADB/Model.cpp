@@ -144,11 +144,11 @@ void CModel::ProcessMaterials(const aiScene* pScene, std::string strFilePath)
         std::map<std::string, CTexture*> mapTextures;
         if (diffuseTexture.length > 0)
         {
-            mapTextures["uMaterial.DiffuseMap"] = new CTexture(strFilePath + diffuseTexture.C_Str());
+            mapTextures["uMaterial.DiffuseMap"] = new CFileTexture(strFilePath + diffuseTexture.C_Str());
         }
         if (specularTexture.length > 0)
         {
-            mapTextures["uMaterial.SpecularMap"] = new CTexture(strFilePath + specularTexture.C_Str());
+            mapTextures["uMaterial.SpecularMap"] = new CFileTexture(strFilePath + specularTexture.C_Str());
         }
 
         CProgram * pProgram = CreateTempProgram("lit_diffuse", "lit_diffuse.vert", "lit_diffuse.frag");
