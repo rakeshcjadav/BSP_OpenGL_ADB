@@ -69,6 +69,8 @@ int main()
 
         pWindow->Prepare();
 
+        glEnable(GL_MULTISAMPLE);
+
         // TODO: Move to material
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    // Transparent blend or Alpha blend or Transparent
