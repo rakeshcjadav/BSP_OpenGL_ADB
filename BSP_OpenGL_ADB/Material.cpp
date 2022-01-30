@@ -32,7 +32,8 @@ void CMaterial::Bind()
     {
         std::string uniformName = itr->first;
         CTexture* pTexture = itr->second;
-        pTexture->Bind(i);
+        if(pTexture)
+            pTexture->Bind(i);
         m_pProgram->SetUniform(uniformName, i);
         i++;
     }

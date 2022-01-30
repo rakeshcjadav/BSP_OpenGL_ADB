@@ -13,6 +13,11 @@ void CTexture::Bind(unsigned int index)
     glBindTexture(GL_TEXTURE_2D, m_IDTexture);
 }
 
+void CTexture::UnBind()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 unsigned int CTexture::GetID()
 {
     return m_IDTexture;
@@ -33,6 +38,11 @@ CFileTexture::CFileTexture(std::string strFileName):
 CFileTexture::~CFileTexture()
 {
 
+}
+
+GLenum CFileTexture::GetType()
+{
+    return GL_TEXTURE_2D;
 }
 
 unsigned int CFileTexture::LoadTexture(std::string strFileName)
@@ -101,3 +111,32 @@ CDynamicTexture::~CDynamicTexture()
 {
 
 }
+
+GLenum CDynamicTexture::GetType()
+{
+    return GL_TEXTURE_2D;
+}
+
+// CDynamicMultiSampleTexture
+CDynamicMultiSampleTexture::CDynamicMultiSampleTexture(std::string strName, GLint internalformat, GLsizei width, GLsizei height, GLsizei samples) :
+    CTexture(strName)
+{
+    glGenTextures(1, &m_IDTexture);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_IDTexture);
+
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalformat, width, height, GL_TRUE);
+
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+CDynamicMultiSampleTexture::~CDynamicMultiSampleTexture()
+{
+
+}
+
+GLenum CDynamicMultiSampleTexture::GetType()
+{
+    return GL_TEXTURE_2D_MULTISAMPLE;
+}
+

@@ -137,7 +137,8 @@ void CScene::LoadScene()
     m_pProgram->SetUniform("uMatModel", matModel);
     */
 
-    m_pOffScreenFrameBuffer = new CFrameBuffer("OffScreen", 1024, 1024);
+    m_pOffScreenFrameBuffer_MS = new CFrameBuffer("OffScreen_MultiSample", 1024, 1024, true);
+    m_pOffScreenFrameBuffer = new CFrameBuffer("OffScreen", 1024, 1024, false);
 
     {
         std::map<std::string, CTexture*> mapTextures;
@@ -158,16 +159,30 @@ void CScene::Render(CCamera* pCamera)
     // Depth Sorted : Objects far from camera will be rendered first
     // Render transparent objects
 
-    m_pOffScreenFrameBuffer->Bind();
-    m_pOffScreenFrameBuffer->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    // 1 Render Multisample FBO
+    m_pOffScreenFrameBuffer_MS->Bind();
+    m_pOffScreenFrameBuffer_MS->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
     m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
     m_pModelMinion->Render(pCamera);
-    m_pOffScreenFrameBuffer->UnBind();
+    m_pOffScreenFrameBuffer_MS->UnBind();
 
+    // 2 Copy From Multisample FBO to Singlesample FBO ( all color attachments ) 
+    m_pOffScreenFrameBuffer_MS->ReadBind();
+    m_pOffScreenFrameBuffer->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    m_pOffScreenFrameBuffer->DrawBind();
+    m_pOffScreenFrameBuffer_MS->ReadBuffer(0);
+    m_pOffScreenFrameBuffer->DrawBuffer(0);
+    m_pOffScreenFrameBuffer->Blit();
+    m_pOffScreenFrameBuffer_MS->ReadBuffer(1);
+    m_pOffScreenFrameBuffer->DrawBuffer(1);
+    m_pOffScreenFrameBuffer->Blit();
+    m_pOffScreenFrameBuffer->UnBind();
+    
+    // 3 Final Render Pass on Default Framebuffer
     glStencilMask(0x00);
 
     m_pModelGround->Render(pCamera, nullptr, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
-
+    m_pModelFBO->Render(pCamera, m_pUnlitFBOMaterial, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
     m_pModelMinion->Render(pCamera);
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -184,5 +199,5 @@ void CScene::Render(CCamera* pCamera)
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glEnable(GL_DEPTH_TEST);
 
-    m_pModelFBO->Render(pCamera, m_pUnlitFBOMaterial, m_pDirectionalLight, m_pPointLight, m_pSpotLight);
+    
 }

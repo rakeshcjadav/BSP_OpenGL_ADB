@@ -46,5 +46,6 @@ private:
 
     CMaterial* m_pOutlineMaterial;
 
+    CFrameBuffer* m_pOffScreenFrameBuffer_MS;
     CFrameBuffer* m_pOffScreenFrameBuffer;
 };
