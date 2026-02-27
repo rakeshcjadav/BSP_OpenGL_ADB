@@ -5,15 +5,56 @@
 CMesh* CMesh::CreateRectangle()
 {
     SMeshData data;
-    data.aVertices.push_back(SVertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)));
-    data.aVertices.push_back(SVertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)));
-    data.aVertices.push_back(SVertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)));
-    data.aVertices.push_back(SVertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)));
-
-    data.aIndices = { 
-        0, 1, 2, 
-        0, 2, 3 
-    };
+    
+    const int subdivisionsX = 70;
+    const int subdivisionsY = 70;
+    const int totalVertices = (subdivisionsX + 1) * (subdivisionsY + 1);
+    
+    const float width = 1.0f;
+    const float height = 1.0f;
+    const float startX = -width / 2.0f;
+    const float startY = -height / 2.0f;
+    const float stepX = width / subdivisionsX;
+    const float stepY = height / subdivisionsY;
+    
+    for (int y = 0; y <= subdivisionsY; ++y)
+    {
+        for (int x = 0; x <= subdivisionsX; ++x)
+        {
+            float posX = startX + x * stepX;
+            float posY = startY + y * stepY;
+            float posZ = 0.0f;
+            
+            glm::vec3 position(posX, posY, posZ);
+            glm::vec3 normal(0.0f, 0.0f, 1.0f);
+            glm::vec2 uv((float)x / subdivisionsX, (float)y / subdivisionsY);
+            
+            float noise = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
+            float scalarValue = sin(posX * 10.0f) * cos(posY * 10.0f) + noise;
+            glm::vec2 colorRange(scalarValue, 0.0f);
+            
+            data.aVertices.push_back(SVertex(position, normal, uv, colorRange));
+        }
+    }
+    
+    for (int y = 0; y < subdivisionsY; ++y)
+    {
+        for (int x = 0; x < subdivisionsX; ++x)
+        {
+            int topLeft = y * (subdivisionsX + 1) + x;
+            int topRight = topLeft + 1;
+            int bottomLeft = (y + 1) * (subdivisionsX + 1) + x;
+            int bottomRight = bottomLeft + 1;
+            
+            data.aIndices.push_back(topLeft);
+            data.aIndices.push_back(bottomLeft);
+            data.aIndices.push_back(topRight);
+            
+            data.aIndices.push_back(topRight);
+            data.aIndices.push_back(bottomLeft);
+            data.aIndices.push_back(bottomRight);
+        }
+    }
 
     return new CMesh(&data);
 }

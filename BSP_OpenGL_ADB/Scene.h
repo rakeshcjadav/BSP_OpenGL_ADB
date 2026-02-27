@@ -22,6 +22,8 @@ private:
     CCamera* m_pCamera;
 
     CModel* m_pModelBackpack;
+    CModel* m_pModelPlane;
+	CMaterial* m_pMaterialPlane;
 
     CLight* m_pDirectionalLight;
 

@@ -170,7 +170,7 @@ CMesh* CModel::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
         }
         
         float noise = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
-        float scalarValue = sin(position.x) * cos(position.z) + noise;
+        float scalarValue = abs(sin(position.x) *cos(position.z));// +noise;
         glm::vec2 colorRange = glm::vec2(scalarValue, 0.0f);
         
         SVertex vertex(position, normal, uv, colorRange);

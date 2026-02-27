@@ -48,6 +48,13 @@ void CScene::LoadScene()
             glm::vec3(0.150f, 0.150f, 0.150f)),
         CUtil::GetModelPath() + "airplane\\11803_Airplane_v1_l1.obj");
 
+	m_pMaterialPlane = new CMaterial("plane_material", nullptr, CreateProgram("plane_program", "lit.vert", "lit.frag"));
+    m_pModelPlane = CModel::Load(
+        new CTransform(glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(300.0f, 300.0f, 300.0f)),
+		CMesh::CreateRectangle(), m_pMaterialPlane);
+
 }
 
 CCamera* CScene::GetCamera()
@@ -90,6 +97,6 @@ void CScene::Render(CCamera* pCamera)
 {   
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax);
+    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax);
     glEnable(GL_DEPTH_TEST);
 }
