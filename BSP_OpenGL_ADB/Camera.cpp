@@ -82,7 +82,34 @@ void CCamera::Render()
 
 void CCamera::OnKeyPressed(int key)
 {
-
+    if (key == GLFW_KEY_1)
+    {
+        m_pScene->SetColormapMode(0);
+    }
+    else if (key == GLFW_KEY_2)
+    {
+        m_pScene->SetColormapMode(1);
+    }
+    else if (key == GLFW_KEY_3)
+    {
+        m_pScene->SetColormapMode(2);
+    }
+    else if (key == GLFW_KEY_Q)
+    {
+        m_pScene->AdjustScalarRangeMin(-0.05f);
+    }
+    else if (key == GLFW_KEY_W)
+    {
+        m_pScene->AdjustScalarRangeMin(0.05f);
+    }
+    else if (key == GLFW_KEY_E)
+    {
+        m_pScene->AdjustScalarRangeMax(-0.05f);
+    }
+    else if (key == GLFW_KEY_R)
+    {
+        m_pScene->AdjustScalarRangeMax(0.05f);
+    }
 }
 
 void CCamera::OnKeyReleased(int key)

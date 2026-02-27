@@ -24,7 +24,9 @@ CProgram* CreateProgram(std::string name, std::string vertShader, std::string fr
 
 CScene::CScene()
 {
-
+    m_iColormapMode = 0;
+    m_fScalarRangeMin = 0.0f;
+    m_fScalarRangeMax = 1.0f;
 }
 
 void CScene::LoadScene()
@@ -53,10 +55,41 @@ CCamera* CScene::GetCamera()
     return m_pCamera;
 }
 
+void CScene::SetColormapMode(int mode)
+{
+    m_iColormapMode = mode;
+    std::string colormap = (mode == 0) ? "Viridis" : (mode == 1) ? "Turbo" : "Jet";
+    std::cout << "Colormap changed to: " << colormap << std::endl;
+}
+
+void CScene::SetScalarRangeMin(float value)
+{
+    m_fScalarRangeMin = glm::clamp(value, 0.0f, m_fScalarRangeMax);
+    std::cout << "Scalar Range: [" << m_fScalarRangeMin << ", " << m_fScalarRangeMax << "]" << std::endl;
+}
+
+void CScene::SetScalarRangeMax(float value)
+{
+    m_fScalarRangeMax = glm::clamp(value, m_fScalarRangeMin, 1.0f);
+    std::cout << "Scalar Range: [" << m_fScalarRangeMin << ", " << m_fScalarRangeMax << "]" << std::endl;
+}
+
+void CScene::AdjustScalarRangeMin(float delta)
+{
+    m_fScalarRangeMin = glm::clamp(m_fScalarRangeMin + delta, 0.0f, m_fScalarRangeMax);
+    std::cout << "Scalar Range: [" << m_fScalarRangeMin << ", " << m_fScalarRangeMax << "]" << std::endl;
+}
+
+void CScene::AdjustScalarRangeMax(float delta)
+{
+    m_fScalarRangeMax = glm::clamp(m_fScalarRangeMax + delta, m_fScalarRangeMin, 1.0f);
+    std::cout << "Scalar Range: [" << m_fScalarRangeMin << ", " << m_fScalarRangeMax << "]" << std::endl;
+}
+
 void CScene::Render(CCamera* pCamera)
 {   
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight);
+    m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax);
     glEnable(GL_DEPTH_TEST);
 }

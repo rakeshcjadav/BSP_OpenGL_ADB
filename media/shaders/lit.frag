@@ -8,6 +8,7 @@ in OUT
     // Normal Direction of a fragment in World Space
     vec3 NormalFrag;
     vec2 UVFrag;
+    flat vec2 ColorRangeFrag;
 }fragIn;
 
 uniform Material uMaterial;
@@ -15,32 +16,63 @@ uniform DirectionalLight uDirectionalLight;
 uniform PointLight uPointLight;
 uniform SpotLight uSpotLight;
 uniform vec3 uCameraPos;
+uniform int uColormapMode;
+uniform float uScalarRangeMin;
+uniform float uScalarRangeMax;
 
 layout(location = 0) out vec4 FragColor;
 
+vec3 applyColormap(float t, int mode)
+{
+    if (mode == 0)
+        return viridis(t);
+    else if (mode == 1)
+        return turbo(t);
+    else if (mode == 2)
+        return jet(t);
+    else
+        return viridis(t);
+}
+
 void main()
 {
-    // Ambient 
-    // Directinal Light
+    float scalarValue = fragIn.ColorRangeFrag.x;
+    
+    float minVal = uScalarRangeMin * 2.4 - 1.2;
+    float maxVal = uScalarRangeMax * 2.4 - 1.2;
+    
+    vec3 colormapColor;
+    if (scalarValue < minVal)
+    {
+        discard; // Discard fragments with scalar values below the minimum
+    }
+    else if (scalarValue > maxVal)
+    {
+         discard; // Discard fragments with scalar values below the minimum
+    }
+    else
+    {
+        float normalizedValue = (scalarValue - minVal) / (maxVal - minVal);
+        colormapColor = applyColormap(normalizedValue, uColormapMode);
+    }
+    
     vec3 ambientColor = CalcAmbient(uDirectionalLight.color, uMaterial.ambient);
 
     vec3 normal = normalize(fragIn.NormalFrag);
 
-    // Diffuse
     vec3 diffuseColor = vec3(0.0f);
-    // Directinal Light
     diffuseColor += Diffuse(uDirectionalLight, normal);
 
-    // Specular ( Blin-Phong )
-    // Directinal Light
-    vec3 specularColor = Specular(uDirectionalLight, normal, fragIn.PositionFrag, uCameraPos, uMaterial);
+    //vec3 specularColor = Specular(uDirectionalLight, normal, fragIn.PositionFrag, uCameraPos, uMaterial);
 
-    specularColor *= uMaterial.specular;
+    //specularColor *= uMaterial.specular;
 
     vec3 finalColor = vec3(0.0f);
     finalColor += ambientColor;
     finalColor += diffuseColor;
-    finalColor += specularColor;
+    //finalColor += specularColor;
+
+    finalColor *= colormapColor;
 
     FragColor = vec4(finalColor, 1.0);
 };

@@ -48,7 +48,7 @@ CModel::CModel(CTransform* pTransform):
 
 }
 
-void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight)
+void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, int colormapMode, float scalarMin, float scalarMax)
 {
     glm::mat4 matCamera = pCamera->GetCameraMatrix();
     glm::mat4 matProjection = pCamera->GetPerspectiveProjectionMatrix();
@@ -67,6 +67,9 @@ void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectiona
         pMaterial->SetUniform("uMatProjection", matProjection);
         pMaterial->SetUniform("uMatModel", m_pTransform->GetMatrix());
         pMaterial->SetUniform("uCameraPos", cameraPos);
+        pMaterial->SetUniform("uColormapMode", colormapMode);
+        pMaterial->SetUniform("uScalarRangeMin", scalarMin);
+        pMaterial->SetUniform("uScalarRangeMax", scalarMax);
 
         for (CMesh* pMesh : pair.second)
         {
@@ -125,8 +128,8 @@ void CModel::ProcessMaterials(const aiScene* pScene, std::string strFilePath)
         material->Get(AI_MATKEY_SHININESS, shininess);
 
         SMaterialDef* pMaterialDef = new SMaterialDef();
-        pMaterialDef->ambientColor = glm::make_vec3(&ambientColor.r);
-        pMaterialDef->diffuseColor = glm::make_vec3(&diffuseColor.r);
+        pMaterialDef->ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
+        pMaterialDef->diffuseColor = glm::vec3(1.f, 1.f, 1.f);
         pMaterialDef->specularColor = glm::make_vec3(&specularColor.r);
         pMaterialDef->shininess = shininess;
         pMaterialDef->specularStrength = specularColor.r;
@@ -165,7 +168,12 @@ CMesh* CModel::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
         {
             uv = glm::make_vec2(&pMesh->mTextureCoords[0][i].x);
         }
-        SVertex vertex(position, normal, uv);
+        
+        float noise = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
+        float scalarValue = sin(position.x) * cos(position.z) + noise;
+        glm::vec2 colorRange = glm::vec2(scalarValue, 0.0f);
+        
+        SVertex vertex(position, normal, uv, colorRange);
         meshData.aVertices.push_back(vertex);
     }
 

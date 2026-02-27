@@ -20,11 +20,11 @@ void CMaterial::Bind()
 
     if (m_pMaterialDef)
     {
-        m_pProgram->SetUniform("uMaterial.material.ambient", m_pMaterialDef->ambientColor);
-        m_pProgram->SetUniform("uMaterial.material.diffuse", m_pMaterialDef->diffuseColor);
-        m_pProgram->SetUniform("uMaterial.material.specular", m_pMaterialDef->specularColor);
-        m_pProgram->SetUniform("uMaterial.material.shininess", m_pMaterialDef->shininess);
-        m_pProgram->SetUniform("uMaterial.material.specularStrength", m_pMaterialDef->specularStrength);
+        SetUniform("uMaterial.ambient", m_pMaterialDef->ambientColor);
+        SetUniform("uMaterial.diffuse", m_pMaterialDef->diffuseColor);
+        SetUniform("uMaterial.specular", m_pMaterialDef->specularColor);
+        SetUniform("uMaterial.shininess", m_pMaterialDef->shininess);
+        SetUniform("uMaterial.specularStrength", m_pMaterialDef->specularStrength);
     }
 }
 

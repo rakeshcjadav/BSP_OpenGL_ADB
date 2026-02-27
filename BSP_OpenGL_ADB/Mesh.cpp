@@ -94,6 +94,10 @@ CMesh::CMesh(SMeshData* pMeshData)
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(2*sizeof(glm::vec3)));
         glEnableVertexAttribArray(2);
 
+        // Color Range
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(2*sizeof(glm::vec3) + sizeof(glm::vec2)));
+        glEnableVertexAttribArray(3);
+
         /*
         unsigned int VBOCol;
         glGenBuffers(1, &VBOCol);
