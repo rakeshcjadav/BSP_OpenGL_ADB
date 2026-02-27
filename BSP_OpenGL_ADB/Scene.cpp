@@ -27,6 +27,8 @@ CScene::CScene()
     m_iColormapMode = 0;
     m_fScalarRangeMin = 0.0f;
     m_fScalarRangeMax = 1.0f;
+    m_bShowWireframe = false;
+    m_fWireframeThickness = 1.0f;
 }
 
 void CScene::LoadScene()
@@ -53,7 +55,7 @@ void CScene::LoadScene()
         new CTransform(glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(300.0f, 300.0f, 300.0f)),
-		CMesh::CreateRectangle(), m_pMaterialPlane);
+		CMesh::CreateRectangleTriangleList(), m_pMaterialPlane);
 
 }
 
@@ -93,10 +95,28 @@ void CScene::AdjustScalarRangeMax(float delta)
     std::cout << "Scalar Range: [" << m_fScalarRangeMin << ", " << m_fScalarRangeMax << "]" << std::endl;
 }
 
+void CScene::ToggleWireframe()
+{
+    m_bShowWireframe = !m_bShowWireframe;
+    std::cout << "Wireframe: " << (m_bShowWireframe ? "ON" : "OFF") << std::endl;
+}
+
+void CScene::SetWireframeThickness(float thickness)
+{
+    m_fWireframeThickness = glm::clamp(thickness, 0.1f, 5.0f);
+    std::cout << "Wireframe Thickness: " << m_fWireframeThickness << std::endl;
+}
+
+void CScene::AdjustWireframeThickness(float delta)
+{
+    m_fWireframeThickness = glm::clamp(m_fWireframeThickness + delta, 0.1f, 5.0f);
+    std::cout << "Wireframe Thickness: " << m_fWireframeThickness << std::endl;
+}
+
 void CScene::Render(CCamera* pCamera)
 {   
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax);
+    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness);
     glEnable(GL_DEPTH_TEST);
 }

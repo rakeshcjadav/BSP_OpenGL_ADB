@@ -17,6 +17,9 @@ public:
     void SetScalarRangeMax(float value);
     void AdjustScalarRangeMin(float delta);
     void AdjustScalarRangeMax(float delta);
+    void ToggleWireframe();
+    void SetWireframeThickness(float thickness);
+    void AdjustWireframeThickness(float delta);
 
 private:
     CCamera* m_pCamera;
@@ -30,4 +33,6 @@ private:
     int m_iColormapMode;
     float m_fScalarRangeMin;
     float m_fScalarRangeMax;
+    bool m_bShowWireframe;
+    float m_fWireframeThickness;
 };

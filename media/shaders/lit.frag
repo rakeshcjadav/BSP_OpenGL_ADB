@@ -9,6 +9,7 @@ in OUT
     vec3 NormalFrag;
     vec2 UVFrag;
     flat vec2 ColorRangeFrag;
+    vec3 BarycentricFrag;
 }fragIn;
 
 uniform Material uMaterial;
@@ -19,6 +20,8 @@ uniform vec3 uCameraPos;
 uniform int uColormapMode;
 uniform float uScalarRangeMin;
 uniform float uScalarRangeMax;
+uniform bool uShowWireframe;
+uniform float uWireframeThickness;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -34,6 +37,13 @@ vec3 applyColormap(float t, int mode)
         return viridis(t);
 }
 
+float edgeFactor()
+{
+    vec3 d = fwidth(fragIn.BarycentricFrag);
+    vec3 a3 = smoothstep(vec3(0.0), d * uWireframeThickness, fragIn.BarycentricFrag);
+    return min(min(a3.x, a3.y), a3.z);
+}
+
 void main()
 {
     float scalarValue = fragIn.ColorRangeFrag.x;
@@ -44,11 +54,11 @@ void main()
     vec3 colormapColor;
     if (scalarValue < minVal)
     {
-        discard; // Discard fragments with scalar values below the minimum
+        discard;
     }
     else if (scalarValue > maxVal)
     {
-         discard; // Discard fragments with scalar values below the minimum
+         discard;
     }
     else
     {
@@ -63,16 +73,18 @@ void main()
     vec3 diffuseColor = vec3(0.0f);
     diffuseColor += Diffuse(uDirectionalLight, normal);
 
-    //vec3 specularColor = Specular(uDirectionalLight, normal, fragIn.PositionFrag, uCameraPos, uMaterial);
-
-    //specularColor *= uMaterial.specular;
-
     vec3 finalColor = vec3(0.0f);
     finalColor += ambientColor;
     finalColor += diffuseColor;
-    //finalColor += specularColor;
 
     finalColor *= colormapColor;
+    
+    if (uShowWireframe)
+    {
+        vec3 wireframeColor = vec3(0.0, 0.0, 0.0);
+        float edge = edgeFactor();
+        finalColor = mix(wireframeColor, finalColor, edge);
+    }
 
     FragColor = vec4(finalColor, 1.0);
 };

@@ -110,6 +110,18 @@ void CCamera::OnKeyPressed(int key)
     {
         m_pScene->AdjustScalarRangeMax(0.05f);
     }
+    else if (key == GLFW_KEY_T)
+    {
+        m_pScene->ToggleWireframe();
+    }
+    else if (key == GLFW_KEY_Y)
+    {
+        m_pScene->AdjustWireframeThickness(-0.2f);
+    }
+    else if (key == GLFW_KEY_U)
+    {
+        m_pScene->AdjustWireframeThickness(0.2f);
+    }
 }
 
 void CCamera::OnKeyReleased(int key)

@@ -4,6 +4,7 @@ layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 TexCoord;
 layout(location = 3) in vec2 ColorRange;
+layout(location = 4) in vec3 Barycentric;
 
 uniform mat4 uMatModel;
 uniform mat4 uMatCamera;
@@ -15,6 +16,7 @@ out OUT
     vec3 NormalFrag;
     vec2 UVFrag;
     flat vec2 ColorRangeFrag;
+    vec3 BarycentricFrag;
 }vertOut;
 
 void main()
@@ -31,4 +33,7 @@ void main()
 
     // Color Range for this vertex
     vertOut.ColorRangeFrag = ColorRange;
+    
+    // Barycentric coordinates for this vertex
+    vertOut.BarycentricFrag = Barycentric;
 };

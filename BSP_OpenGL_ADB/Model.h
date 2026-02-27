@@ -10,7 +10,7 @@ class CModel
 public:
     static CModel* Load(CTransform* pTransform, std::string strFilePath);
     static CModel* Load(CTransform* pTransform, CMesh * pMesh, CMaterial * pMaterial);
-    void Render(CCamera* pCamera, CMaterial* pOverride = nullptr, CLight* pDirectionalLight = nullptr, int colormapMode = 0, float scalarMin = 0.0f, float scalarMax = 1.0f);
+    void Render(CCamera* pCamera, CMaterial* pOverride = nullptr, CLight* pDirectionalLight = nullptr, int colormapMode = 0, float scalarMin = 0.0f, float scalarMax = 1.0f, bool showWireframe = false, float wireframeThickness = 1.0f);
 
 private:
     CModel(CTransform* pTransform);
