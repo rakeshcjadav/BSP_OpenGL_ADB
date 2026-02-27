@@ -22,6 +22,9 @@ uniform float uScalarRangeMin;
 uniform float uScalarRangeMax;
 uniform bool uShowWireframe;
 uniform float uWireframeThickness;
+uniform bool uShowIsolines;
+uniform float uIsolineInterval;
+uniform float uIsolineThickness;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -42,6 +45,19 @@ float edgeFactor()
     vec3 d = fwidth(fragIn.BarycentricFrag);
     vec3 a3 = smoothstep(vec3(0.0), d * uWireframeThickness, fragIn.BarycentricFrag);
     return min(min(a3.x, a3.y), a3.z);
+}
+
+float isolineFactor(float scalarValue, float minVal, float maxVal)
+{
+    float normalizedValue = (scalarValue - minVal) / (maxVal - minVal);
+    
+    float modValue = mod(normalizedValue, uIsolineInterval);
+    float minDist = min(modValue, uIsolineInterval - modValue);
+    
+    float d = fwidth(normalizedValue);
+    float lineWidth = max(d * uIsolineThickness, 0.001);
+    
+    return smoothstep(0.0, lineWidth, minDist);
 }
 
 void main()
@@ -78,12 +94,19 @@ void main()
     finalColor += diffuseColor;
 
     finalColor *= colormapColor;
-    
+     
     if (uShowWireframe)
     {
         vec3 wireframeColor = vec3(0.0, 0.0, 0.0);
         float edge = edgeFactor();
         finalColor = mix(wireframeColor, finalColor, edge);
+    }
+   
+    if (uShowIsolines)
+    {
+        vec3 isolineColor = vec3(1.0, 0.0, 0.0);
+        float iso = isolineFactor(scalarValue, minVal, maxVal);
+        finalColor = mix(isolineColor, finalColor, iso);
     }
 
     FragColor = vec4(finalColor, 1.0);

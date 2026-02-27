@@ -130,6 +130,26 @@ void CCamera::OnKeyPressed(int key)
     {
         m_pScene->AdjustDisplacementScale(0.5f);
     }
+    else if (key == GLFW_KEY_P)
+    {
+        m_pScene->ToggleIsolines();
+    }
+    else if (key == GLFW_KEY_LEFT_BRACKET)
+    {
+        m_pScene->AdjustIsolineInterval(-0.05f);
+    }
+    else if (key == GLFW_KEY_RIGHT_BRACKET)
+    {
+        m_pScene->AdjustIsolineInterval(0.05f);
+    }
+    else if (key == GLFW_KEY_SEMICOLON)
+    {
+        m_pScene->AdjustIsolineThickness(-0.3f);
+    }
+    else if (key == GLFW_KEY_APOSTROPHE)
+    {
+        m_pScene->AdjustIsolineThickness(0.3f);
+    }
 }
 
 void CCamera::OnKeyReleased(int key)

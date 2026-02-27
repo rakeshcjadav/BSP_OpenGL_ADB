@@ -29,6 +29,10 @@ CScene::CScene()
     m_fScalarRangeMax = 1.0f;
     m_bShowWireframe = false;
     m_fWireframeThickness = 1.0f;
+    m_fDisplacementScale = 0.0f;
+    m_bShowIsolines = false;
+    m_fIsolineInterval = 0.1f;
+    m_fIsolineThickness = 2.0f;
 }
 
 void CScene::LoadScene()
@@ -125,10 +129,40 @@ void CScene::AdjustDisplacementScale(float delta)
     std::cout << "Displacement Scale: " << m_fDisplacementScale << std::endl;
 }
 
+void CScene::ToggleIsolines()
+{
+    m_bShowIsolines = !m_bShowIsolines;
+    std::cout << "Isolines: " << (m_bShowIsolines ? "ON" : "OFF") << std::endl;
+}
+
+void CScene::SetIsolineInterval(float interval)
+{
+    m_fIsolineInterval = glm::clamp(interval, 0.05f, 2.0f);
+    std::cout << "Isoline Interval: " << m_fIsolineInterval << std::endl;
+}
+
+void CScene::AdjustIsolineInterval(float delta)
+{
+    m_fIsolineInterval = glm::clamp(m_fIsolineInterval + delta, 0.05f, 2.0f);
+    std::cout << "Isoline Interval: " << m_fIsolineInterval << std::endl;
+}
+
+void CScene::SetIsolineThickness(float thickness)
+{
+    m_fIsolineThickness = glm::clamp(thickness, 0.5f, 5.0f);
+    std::cout << "Isoline Thickness: " << m_fIsolineThickness << std::endl;
+}
+
+void CScene::AdjustIsolineThickness(float delta)
+{
+    m_fIsolineThickness = glm::clamp(m_fIsolineThickness + delta, 0.5f, 5.0f);
+    std::cout << "Isoline Thickness: " << m_fIsolineThickness << std::endl;
+}
+
 void CScene::Render(CCamera* pCamera)
 {   
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale);
+    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale, m_bShowIsolines, m_fIsolineInterval, m_fIsolineThickness);
     glEnable(GL_DEPTH_TEST);
 }

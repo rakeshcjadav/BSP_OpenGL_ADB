@@ -32,6 +32,25 @@ displacement = vec3(cos(x*5)*0.1, sin(y*5)*0.1, scalarValue*0.05)
 ```
 The displacement creates a wave-like deformation based on position and scalar value. Scale range: 0.0 - 10.0
 
+## Isolines (Contour Lines)
+Display contour lines at regular scalar value intervals:
+- **P**: Toggle isolines on/off
+- **[ (Left Bracket)**: Decrease isoline interval (step: -0.05, range: 0.05-2.0)
+- **] (Right Bracket)**: Increase isoline interval (step: +0.05, range: 0.05-2.0)
+- **; (Semicolon)**: Decrease isoline thickness (step: -0.3, range: 0.5-5.0)
+- **' (Apostrophe)**: Increase isoline thickness (step: +0.3, range: 0.5-5.0)
+
+Isolines are computed directly in the fragment shader using the normalized scalar value (0.0-1.0 range):
+```glsl
+float normalizedValue = (scalarValue - minVal) / (maxVal - minVal);
+float modValue = mod(normalizedValue, isolineInterval);
+float minDist = min(modValue, isolineInterval - modValue);
+```
+
+**Default settings**: Interval = 0.1 (10 contour lines), Thickness = 2.0
+
+This creates black contour lines at regular intervals (e.g., 0.0, 0.1, 0.2, 0.3, ... 1.0), useful for visualizing gradient changes and identifying regions of equal scalar values. The lines are anti-aliased and screen-space adaptive for smooth rendering at any zoom level.
+
 ## Out-of-Range Values
 Values outside the selected range are discarded (not rendered).
 

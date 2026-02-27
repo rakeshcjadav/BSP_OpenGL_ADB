@@ -22,6 +22,11 @@ public:
     void AdjustWireframeThickness(float delta);
     void SetDisplacementScale(float scale);
     void AdjustDisplacementScale(float delta);
+    void ToggleIsolines();
+    void SetIsolineInterval(float interval);
+    void AdjustIsolineInterval(float delta);
+    void SetIsolineThickness(float thickness);
+    void AdjustIsolineThickness(float delta);
 
 private:
     CCamera* m_pCamera;
@@ -38,4 +43,7 @@ private:
     bool m_bShowWireframe;
     float m_fWireframeThickness;
     float m_fDisplacementScale;
+    bool m_bShowIsolines;
+    float m_fIsolineInterval;
+    float m_fIsolineThickness;
 };
