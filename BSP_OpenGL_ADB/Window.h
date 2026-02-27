@@ -17,11 +17,13 @@ public:
     void Render();
 
     static void OnWindowResize(GLFWwindow* pWindow, int width, int height);
+    static void OnMouseScroll(GLFWwindow* pGLFWWindow, double x, double y);
     static void OnMouseMove(GLFWwindow* pWidnow, double xpos, double ypos);
     static void OnKey(GLFWwindow* pWidnow, int key, int scancode, int action, int modifier);
     static void OnMouseButton(GLFWwindow* pWidnow, int buttonID, int action, int modifier);
 
     void HandleWindowResize(int width, int height) override;
+	void HandleMouseScroll(double x, double y) override;
     void HandleMouseMove(double xpos, double ypos) override;
     void GetMousePos(double & xpos, double & ypos) override;
     void HandleOnKey(int key, int scancode, int action, int modifier) override;

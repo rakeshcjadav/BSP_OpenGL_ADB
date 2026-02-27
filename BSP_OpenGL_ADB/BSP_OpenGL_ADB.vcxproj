@@ -150,7 +150,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="InputDelegator.cpp" />
@@ -163,19 +162,15 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SpotLight.cpp" />
-    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Viewport.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="InputDelegator.h" />
@@ -185,12 +180,9 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PointLight.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="SpotLight.h" />
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="Window.h" />
@@ -199,12 +191,6 @@
     <None Include="..\media\shaders\common.glsl" />
     <None Include="..\media\shaders\lit.frag" />
     <None Include="..\media\shaders\lit.vert" />
-    <None Include="..\media\shaders\lit_diffuse.frag" />
-    <None Include="..\media\shaders\lit_diffuse.vert" />
-    <None Include="..\media\shaders\outline.frag" />
-    <None Include="..\media\shaders\outline.vert" />
-    <None Include="..\media\shaders\unlit_diffuse.frag" />
-    <None Include="..\media\shaders\unlit_diffuse.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

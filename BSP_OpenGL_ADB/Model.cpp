@@ -3,7 +3,6 @@
 #include"Mesh.h"
 #include"Material.h"
 #include"Camera.h"
-#include"Texture.h"
 #include"Shader.h"
 #include"Program.h"
 #include"Transform.h"
@@ -49,7 +48,7 @@ CModel::CModel(CTransform* pTransform):
 
 }
 
-void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, CLight * pPointLight, CLight * pSpotLight)
+void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight)
 {
     glm::mat4 matCamera = pCamera->GetCameraMatrix();
     glm::mat4 matProjection = pCamera->GetPerspectiveProjectionMatrix();
@@ -63,10 +62,6 @@ void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectiona
 
         if(pDirectionalLight)
             pDirectionalLight->Bind(pMaterial);
-        if(pPointLight)
-            pPointLight->Bind(pMaterial);
-        if(pSpotLight)
-            pSpotLight->Bind(pMaterial);
 
         pMaterial->SetUniform("uMatCamera", matCamera);
         pMaterial->SetUniform("uMatProjection", matProjection);
@@ -113,6 +108,7 @@ bool CModel::LoadModelPrivate(CMesh* pMesh, CMaterial* pMaterial)
 
 void CModel::ProcessMaterials(const aiScene* pScene, std::string strFilePath)
 {
+    CProgram* pProgram = CreateTempProgram("lit_temp", "lit.vert", "lit.frag");
     for (unsigned int i = 0; i < pScene->mNumMaterials; i++)
     {
         aiMaterial* material = pScene->mMaterials[i];
@@ -135,25 +131,7 @@ void CModel::ProcessMaterials(const aiScene* pScene, std::string strFilePath)
         pMaterialDef->shininess = shininess;
         pMaterialDef->specularStrength = specularColor.r;
 
-        aiString diffuseTexture;
-        material->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), diffuseTexture);
-
-        aiString specularTexture;
-        material->Get(AI_MATKEY_TEXTURE_SPECULAR(0), specularTexture);
-
-        std::map<std::string, CTexture*> mapTextures;
-        if (diffuseTexture.length > 0)
-        {
-            mapTextures["uMaterial.DiffuseMap"] = new CFileTexture(strFilePath + diffuseTexture.C_Str());
-        }
-        if (specularTexture.length > 0)
-        {
-            mapTextures["uMaterial.SpecularMap"] = new CFileTexture(strFilePath + specularTexture.C_Str());
-        }
-
-        CProgram * pProgram = CreateTempProgram("lit_diffuse", "lit_diffuse.vert", "lit_diffuse.frag");
-
-        m_mapMaterials[name.C_Str()] = new CMaterial(name.C_Str(), pMaterialDef, pProgram, mapTextures);
+        m_mapMaterials[name.C_Str()] = new CMaterial(name.C_Str(), pMaterialDef, pProgram);
     }
 }
 

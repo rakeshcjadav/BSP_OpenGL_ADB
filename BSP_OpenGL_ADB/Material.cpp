@@ -1,21 +1,12 @@
 #include"pch.h"
 #include"Material.h"
 #include"Program.h"
-#include"Texture.h"
 
 CMaterial::CMaterial(std::string strName, SMaterialDef* pDef, CProgram* pProgram)
 {
     m_strName = strName;
     m_pMaterialDef = pDef;
     m_pProgram = pProgram;
-}
-
-CMaterial::CMaterial(std::string strName, SMaterialDef * pDef, CProgram * pProgram, std::map<std::string, CTexture*> mapTextures)
-{
-    m_strName = strName;
-    m_pMaterialDef = pDef;
-    m_pProgram = pProgram;
-    m_mapTextures = mapTextures;
 }
 
 std::string CMaterial::GetName()
@@ -26,17 +17,6 @@ std::string CMaterial::GetName()
 void CMaterial::Bind()
 {
     m_pProgram->Use();
-
-    int i = 0;
-    for (auto itr = m_mapTextures.begin(); itr != m_mapTextures.end(); itr++)
-    {
-        std::string uniformName = itr->first;
-        CTexture* pTexture = itr->second;
-        if(pTexture)
-            pTexture->Bind(i);
-        m_pProgram->SetUniform(uniformName, i);
-        i++;
-    }
 
     if (m_pMaterialDef)
     {

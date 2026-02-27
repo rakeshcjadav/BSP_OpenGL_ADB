@@ -7,6 +7,7 @@ public:
     void DetachHandler(IInputHandler* pHandler);
 
     virtual void HandleWindowResize(int width, int height) = 0;
+	virtual void HandleMouseScroll(double x, double y) = 0;
     virtual void HandleMouseMove(double xpos, double ypos) = 0;
     virtual void GetMousePos(double & xpos, double & ypos) = 0;
     virtual void HandleOnKey(int key, int scancode, int action, int modifier) = 0;
