@@ -48,7 +48,7 @@ CModel::CModel(CTransform* pTransform):
 
 }
 
-void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, int colormapMode, float scalarMin, float scalarMax, bool showWireframe, float wireframeThickness)
+void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, int colormapMode, float scalarMin, float scalarMax, bool showWireframe, float wireframeThickness, float displacementScale)
 {
     glm::mat4 matCamera = pCamera->GetCameraMatrix();
     glm::mat4 matProjection = pCamera->GetPerspectiveProjectionMatrix();
@@ -72,6 +72,7 @@ void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectiona
         pMaterial->SetUniform("uScalarRangeMax", scalarMax);
         pMaterial->SetUniform("uShowWireframe", showWireframe ? 1 : 0);
         pMaterial->SetUniform("uWireframeThickness", wireframeThickness);
+        pMaterial->SetUniform("uDisplacementScale", displacementScale);
 
         for (CMesh* pMesh : pair.second)
         {

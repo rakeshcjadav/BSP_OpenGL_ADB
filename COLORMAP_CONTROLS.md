@@ -21,6 +21,17 @@ Toggle and adjust wireframe overlay without a second draw call:
 
 The wireframe is rendered using barycentric coordinates in the fragment shader, allowing single-pass rendering with both solid mesh and wireframe overlay.
 
+## Mesh Displacement
+Apply runtime displacement using per-vertex vector field:
+- **I**: Decrease displacement scale (step: -0.5)
+- **O**: Increase displacement scale (step: +0.5)
+
+Each vertex has a displacement vector calculated as:
+```
+displacement = vec3(cos(x*5)*0.1, sin(y*5)*0.1, scalarValue*0.05)
+```
+The displacement creates a wave-like deformation based on position and scalar value. Scale range: 0.0 - 10.0
+
 ## Out-of-Range Values
 Values outside the selected range are discarded (not rendered).
 

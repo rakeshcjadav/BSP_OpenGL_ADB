@@ -122,6 +122,14 @@ void CCamera::OnKeyPressed(int key)
     {
         m_pScene->AdjustWireframeThickness(0.2f);
     }
+    else if (key == GLFW_KEY_I)
+    {
+        m_pScene->AdjustDisplacementScale(-0.5f);
+    }
+    else if (key == GLFW_KEY_O)
+    {
+        m_pScene->AdjustDisplacementScale(0.5f);
+    }
 }
 
 void CCamera::OnKeyReleased(int key)

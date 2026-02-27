@@ -113,10 +113,22 @@ void CScene::AdjustWireframeThickness(float delta)
     std::cout << "Wireframe Thickness: " << m_fWireframeThickness << std::endl;
 }
 
+void CScene::SetDisplacementScale(float scale)
+{
+    m_fDisplacementScale = glm::clamp(scale, 0.0f, 10.0f);
+    std::cout << "Displacement Scale: " << m_fDisplacementScale << std::endl;
+}
+
+void CScene::AdjustDisplacementScale(float delta)
+{
+    m_fDisplacementScale = glm::clamp(m_fDisplacementScale + delta, 0.0f, 10.0f);
+    std::cout << "Displacement Scale: " << m_fDisplacementScale << std::endl;
+}
+
 void CScene::Render(CCamera* pCamera)
 {   
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness);
+    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale);
     glEnable(GL_DEPTH_TEST);
 }

@@ -110,13 +110,18 @@ CMesh* CMesh::CreateRectangleTriangleList()
             float scalar3 = sin(v3.x * 10.0f) * cos(v3.y * 10.0f) + noise3;
             glm::vec2 color3(scalar3, 0.0f);
             
-            data.aVertices.push_back(SVertex(v0, normal, uv0, color0, glm::vec3(1.0f, 0.0f, 0.0f)));
-            data.aVertices.push_back(SVertex(v1, normal, uv1, color1, glm::vec3(0.0f, 1.0f, 0.0f)));
-            data.aVertices.push_back(SVertex(v2, normal, uv2, color2, glm::vec3(0.0f, 0.0f, 1.0f)));
+            glm::vec3 disp0 = glm::vec3(cos(v0.x * 5.0f) * 0.1f, sin(v0.y * 5.0f) * 0.1f, scalar0 * 0.05f);
+            glm::vec3 disp1 = glm::vec3(cos(v1.x * 5.0f) * 0.1f, sin(v1.y * 5.0f) * 0.1f, scalar1 * 0.05f);
+            glm::vec3 disp2 = glm::vec3(cos(v2.x * 5.0f) * 0.1f, sin(v2.y * 5.0f) * 0.1f, scalar2 * 0.05f);
+            glm::vec3 disp3 = glm::vec3(cos(v3.x * 5.0f) * 0.1f, sin(v3.y * 5.0f) * 0.1f, scalar3 * 0.05f);
             
-            data.aVertices.push_back(SVertex(v2, normal, uv2, color2, glm::vec3(1.0f, 0.0f, 0.0f)));
-            data.aVertices.push_back(SVertex(v3, normal, uv3, color3, glm::vec3(0.0f, 1.0f, 0.0f)));
-            data.aVertices.push_back(SVertex(v0, normal, uv0, color0, glm::vec3(0.0f, 0.0f, 1.0f)));
+            data.aVertices.push_back(SVertex(v0, normal, uv0, color0, glm::vec3(1.0f, 0.0f, 0.0f), disp0));
+            data.aVertices.push_back(SVertex(v1, normal, uv1, color1, glm::vec3(0.0f, 1.0f, 0.0f), disp1));
+            data.aVertices.push_back(SVertex(v2, normal, uv2, color2, glm::vec3(0.0f, 0.0f, 1.0f), disp2));
+            
+            data.aVertices.push_back(SVertex(v2, normal, uv2, color2, glm::vec3(1.0f, 0.0f, 0.0f), disp2));
+            data.aVertices.push_back(SVertex(v3, normal, uv3, color3, glm::vec3(0.0f, 1.0f, 0.0f), disp3));
+            data.aVertices.push_back(SVertex(v0, normal, uv0, color0, glm::vec3(0.0f, 0.0f, 1.0f), disp0));
         }
     }
     
@@ -195,6 +200,9 @@ CMesh::CMesh(SMeshData* pMeshData)
         glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(2*sizeof(glm::vec3) + 2*sizeof(glm::vec2)));
         glEnableVertexAttribArray(4);
 
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(3*sizeof(glm::vec3) + 2*sizeof(glm::vec2)));
+        glEnableVertexAttribArray(5);
+
         unsigned int EBO;
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -231,6 +239,9 @@ CMesh::CMesh(SMeshData* pMeshData, bool useIndexBuffer)
 
         glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(2*sizeof(glm::vec3) + 2*sizeof(glm::vec2)));
         glEnableVertexAttribArray(4);
+
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)(3*sizeof(glm::vec3) + 2*sizeof(glm::vec2)));
+        glEnableVertexAttribArray(5);
 
         if (useIndexBuffer && pMeshData->aIndices.size() > 0)
         {

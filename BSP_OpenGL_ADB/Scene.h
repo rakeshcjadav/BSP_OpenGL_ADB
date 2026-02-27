@@ -20,6 +20,8 @@ public:
     void ToggleWireframe();
     void SetWireframeThickness(float thickness);
     void AdjustWireframeThickness(float delta);
+    void SetDisplacementScale(float scale);
+    void AdjustDisplacementScale(float delta);
 
 private:
     CCamera* m_pCamera;
@@ -35,4 +37,5 @@ private:
     float m_fScalarRangeMax;
     bool m_bShowWireframe;
     float m_fWireframeThickness;
+    float m_fDisplacementScale;
 };
