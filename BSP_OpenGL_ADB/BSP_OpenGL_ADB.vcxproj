@@ -191,6 +191,7 @@
     <None Include="..\media\shaders\common.glsl" />
     <None Include="..\media\shaders\lit.frag" />
     <None Include="..\media\shaders\lit.vert" />
+    <None Include="..\media\shaders\recompute_normals.comp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

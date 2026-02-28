@@ -32,6 +32,25 @@ displacement = vec3(cos(x*5)*0.1, sin(y*5)*0.1, scalarValue*0.05)
 ```
 The displacement creates a wave-like deformation based on position and scalar value. Scale range: 0.0 - 10.0
 
+## GPU Compute Shaders
+Use GPU compute shaders for advanced processing:
+- **C**: Toggle GPU-based normal recomputation (ON/OFF)
+
+When compute normals is enabled:
+- A compute shader recalculates surface normals after displacement
+- Provides accurate lighting on deformed mesh
+- Runs before each frame render
+- Uses OpenGL Shader Storage Buffer Objects (SSBO)
+- Processes 29,400 vertices using work groups of 256 threads
+
+The compute shader automatically:
+1. Applies displacement to each vertex position
+2. Computes face normals from displaced triangles
+3. Updates vertex normals for correct lighting
+4. Synchronizes with rendering pipeline
+
+**Note**: Only active when displacement scale > 0.0
+
 ## Isolines (Contour Lines)
 Display contour lines at regular scalar value intervals:
 - **P**: Toggle isolines on/off

@@ -150,6 +150,14 @@ void CCamera::OnKeyPressed(int key)
     {
         m_pScene->AdjustIsolineThickness(0.3f);
     }
+    else if (key == GLFW_KEY_C)
+    {
+        m_pScene->ToggleComputeNormals();
+    }
+    else if (key == GLFW_KEY_M)
+    {
+        m_pScene->ToggleModel();
+    }
 }
 
 void CCamera::OnKeyReleased(int key)

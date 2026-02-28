@@ -84,6 +84,37 @@ void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectiona
     }
 }
 
+void CModel::RunComputeShader(CProgram* pComputeProgram, float displacementScale)
+{
+    for (auto pair : m_mapMeshes)
+    {
+        for (CMesh* pMesh : pair.second)
+        {
+            pMesh->BindVBOAsSSBO(0);
+            
+            pComputeProgram->Use();
+            pComputeProgram->SetUniform("uVertexCount", (int)pMesh->GetVertexCount());
+            pComputeProgram->SetUniform("uDisplacementScale", displacementScale);
+            
+            unsigned int numTriangles = pMesh->GetVertexCount() / 3;
+            unsigned int numWorkGroups = (numTriangles + 63) / 64;
+            
+            //std::cout << "Dispatching compute: " << numWorkGroups << " work groups, " 
+            //          << pMesh->GetVertexCount() << " vertices, scale=" << displacementScale << std::endl;
+            
+            pComputeProgram->Dispatch(numWorkGroups, 1, 1);
+            
+            GLenum err = glGetError();
+            if (err != GL_NO_ERROR)
+            {
+                std::cout << "OpenGL Error after compute: " << err << std::endl;
+            }
+            
+            pMesh->UnbindSSBO();
+        }
+    }
+}
+
 bool CModel::LoadModelPrivate(std::string strFilePath)
 {
     Assimp::Importer importer;

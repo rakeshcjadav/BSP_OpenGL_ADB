@@ -94,26 +94,26 @@ CMesh* CMesh::CreateRectangleTriangleList()
             glm::vec2 uv2((float)(x + 1) / subdivisionsX, (float)(y + 1) / subdivisionsY);
             glm::vec2 uv3((float)(x + 1) / subdivisionsX, (float)y / subdivisionsY);
             
-            float noise0 = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
-            float scalar0 = sin(v0.x * 10.0f) * cos(v0.y * 10.0f) + noise0;
+            float noise0 = (float)(rand() % 100) / 100.0f * 0.02f - 0.01f;
+            float scalar0 = sin(v0.x * 10.0f) * cos(v0.y * 10.0f);// +noise0;
             glm::vec2 color0(scalar0, 0.0f);
             
-            float noise1 = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
-            float scalar1 = sin(v1.x * 10.0f) * cos(v1.y * 10.0f) + noise1;
+            float noise1 = (float)(rand() % 100) / 100.0f * 0.02f - 0.01f;
+            float scalar1 = sin(v1.x * 10.0f) * cos(v1.y * 10.0f);// +noise1;
             glm::vec2 color1(scalar1, 0.0f);
             
-            float noise2 = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
-            float scalar2 = sin(v2.x * 10.0f) * cos(v2.y * 10.0f) + noise2;
+            float noise2 = (float)(rand() % 100) / 100.0f * 0.02f - 0.01f;
+            float scalar2 = sin(v2.x * 10.0f) * cos(v2.y * 10.0f);// +noise2;
             glm::vec2 color2(scalar2, 0.0f);
             
-            float noise3 = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
-            float scalar3 = sin(v3.x * 10.0f) * cos(v3.y * 10.0f) + noise3;
+            float noise3 = (float)(rand() % 100) / 100.0f * 0.02f - 0.01f;
+            float scalar3 = sin(v3.x * 10.0f) * cos(v3.y * 10.0f);// +noise3;
             glm::vec2 color3(scalar3, 0.0f);
             
-            glm::vec3 disp0 = glm::vec3(cos(v0.x * 5.0f) * 0.1f, sin(v0.y * 5.0f) * 0.1f, scalar0 * 0.05f);
-            glm::vec3 disp1 = glm::vec3(cos(v1.x * 5.0f) * 0.1f, sin(v1.y * 5.0f) * 0.1f, scalar1 * 0.05f);
-            glm::vec3 disp2 = glm::vec3(cos(v2.x * 5.0f) * 0.1f, sin(v2.y * 5.0f) * 0.1f, scalar2 * 0.05f);
-            glm::vec3 disp3 = glm::vec3(cos(v3.x * 5.0f) * 0.1f, sin(v3.y * 5.0f) * 0.1f, scalar3 * 0.05f);
+            glm::vec3 disp0 = glm::vec3(0.0, 0.0, scalar0 * 0.05f);
+            glm::vec3 disp1 = glm::vec3(0.0, 0.0, scalar1 * 0.05f);
+            glm::vec3 disp2 = glm::vec3(0.0, 0.0, scalar2 * 0.05f);
+            glm::vec3 disp3 = glm::vec3(0.0, 0.0, scalar3 * 0.05f);
             
             data.aVertices.push_back(SVertex(v0, normal, uv0, color0, glm::vec3(1.0f, 0.0f, 0.0f), disp0));
             data.aVertices.push_back(SVertex(v1, normal, uv1, color1, glm::vec3(0.0f, 1.0f, 0.0f), disp1));
@@ -180,10 +180,9 @@ CMesh::CMesh(SMeshData* pMeshData)
     glGenVertexArrays(1, &m_IDMesh);
     glBindVertexArray(m_IDMesh);
     {
-        unsigned int VBOPos;
-        glGenBuffers(1, &VBOPos);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOPos);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(SVertex)*pMeshData->aVertices.size(), pMeshData->aVertices.data(), GL_STATIC_DRAW);
+        glGenBuffers(1, &m_IDVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_IDVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(SVertex)*pMeshData->aVertices.size(), pMeshData->aVertices.data(), GL_DYNAMIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)0);
         glEnableVertexAttribArray(0);
@@ -220,10 +219,9 @@ CMesh::CMesh(SMeshData* pMeshData, bool useIndexBuffer)
     glGenVertexArrays(1, &m_IDMesh);
     glBindVertexArray(m_IDMesh);
     {
-        unsigned int VBOPos;
-        glGenBuffers(1, &VBOPos);
-        glBindBuffer(GL_ARRAY_BUFFER, VBOPos);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(SVertex)*pMeshData->aVertices.size(), pMeshData->aVertices.data(), GL_STATIC_DRAW);
+        glGenBuffers(1, &m_IDVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_IDVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(SVertex)*pMeshData->aVertices.size(), pMeshData->aVertices.data(), GL_DYNAMIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (void*)0);
         glEnableVertexAttribArray(0);
@@ -252,6 +250,16 @@ CMesh::CMesh(SMeshData* pMeshData, bool useIndexBuffer)
         }
     }
     glBindVertexArray(0);
+}
+
+void CMesh::BindVBOAsSSBO(unsigned int binding)
+{
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, m_IDVBO);
+}
+
+void CMesh::UnbindSSBO()
+{
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 }
 
 void CMesh::Render()

@@ -4,6 +4,7 @@ class CMesh;
 class CCamera;
 class CMaterial;
 class CTransform;
+class CProgram;
 
 class CModel
 {
@@ -11,6 +12,7 @@ public:
     static CModel* Load(CTransform* pTransform, std::string strFilePath);
     static CModel* Load(CTransform* pTransform, CMesh * pMesh, CMaterial * pMaterial);
     void Render(CCamera* pCamera, CMaterial* pOverride = nullptr, CLight* pDirectionalLight = nullptr, int colormapMode = 0, float scalarMin = 0.0f, float scalarMax = 1.0f, bool showWireframe = false, float wireframeThickness = 1.0f, float displacementScale = 0.0f, bool showIsolines = false, float isolineInterval = 0.1f, float isolineThickness = 2.0f);
+    void RunComputeShader(CProgram* pComputeProgram, float displacementScale);
 
 private:
     CModel(CTransform* pTransform);

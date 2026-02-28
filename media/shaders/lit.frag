@@ -3,12 +3,10 @@
 
 in OUT
 {
-    // Fragment Position in World Space
     vec3 PositionFrag;
-    // Normal Direction of a fragment in World Space
     vec3 NormalFrag;
     vec2 UVFrag;
-    flat vec2 ColorRangeFrag;
+    vec2 ColorRangeFrag;
     vec3 BarycentricFrag;
 }fragIn;
 
@@ -94,7 +92,7 @@ void main()
     finalColor += diffuseColor;
 
     finalColor *= colormapColor;
-     
+
     if (uShowWireframe)
     {
         vec3 wireframeColor = vec3(0.0, 0.0, 0.0);
@@ -104,7 +102,7 @@ void main()
    
     if (uShowIsolines)
     {
-        vec3 isolineColor = vec3(1.0, 0.0, 0.0);
+        vec3 isolineColor = vec3(0.0, 0.0, 0.0);
         float iso = isolineFactor(scalarValue, minVal, maxVal);
         finalColor = mix(isolineColor, finalColor, iso);
     }

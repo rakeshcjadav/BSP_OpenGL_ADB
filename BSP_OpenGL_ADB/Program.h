@@ -6,10 +6,12 @@ class CShader;
 class CProgram
 {
 public:
-    CProgram(std::string strName, CShader * pVertexShader, CShader * pFragmentShader);
-    unsigned int GetID();
-    void Use();
-    void SetUniform(std::string strName, int value);
+CProgram(std::string strName, CShader * pVertexShader, CShader * pFragmentShader);
+CProgram(std::string strName, CShader * pComputeShader);
+unsigned int GetID();
+void Use();
+void Dispatch(unsigned int numGroupsX, unsigned int numGroupsY, unsigned int numGroupsZ);
+void SetUniform(std::string strName, int value);
     void SetUniform(std::string strName, float value);
     void SetUniform(std::string strName, glm::vec2 value);
     void SetUniform(std::string strName, glm::vec3 value);

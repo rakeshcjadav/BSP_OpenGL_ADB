@@ -11,6 +11,10 @@ CShader::CShader(SHADER_TYPE shaderType, std::string strShaderSource)
     {
         m_IDShader = glCreateShader(GL_FRAGMENT_SHADER);
     }
+    else if (shaderType == SHADER_TYPE::COMPUTE_SHADER)
+    {
+        m_IDShader = glCreateShader(GL_COMPUTE_SHADER);
+    }
 
     const char* shaderSource = strShaderSource.c_str();
     glShaderSource(m_IDShader, 1, &shaderSource, NULL);
@@ -29,6 +33,10 @@ CShader::CShader(SHADER_TYPE shaderType, std::string strShaderSource)
         else if (shaderType == SHADER_TYPE::FRAGMENT_SHADER)
         {
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        }
+        else if (shaderType == SHADER_TYPE::COMPUTE_SHADER)
+        {
+            std::cout << "ERROR::SHADER::COMPUTE::COMPILATION_FAILED\n" << infoLog << std::endl;
         }
     }
 }

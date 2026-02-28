@@ -17,7 +17,7 @@ out OUT
     vec3 PositionFrag;
     vec3 NormalFrag;
     vec2 UVFrag;
-    flat vec2 ColorRangeFrag;
+    vec2 ColorRangeFrag;
     vec3 BarycentricFrag;
 }vertOut;
 

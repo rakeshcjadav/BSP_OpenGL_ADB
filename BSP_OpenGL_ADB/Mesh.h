@@ -12,11 +12,15 @@ public:
     CMesh(SMeshData * pMeshData);
     CMesh(SMeshData * pMeshData, bool useIndexBuffer);
     void Render();
+    void BindVBOAsSSBO(unsigned int binding);
+    void UnbindSSBO();
+    unsigned int GetVertexCount() const { return m_iVertexCount; }
 private:
     unsigned int m_IDMesh;
     unsigned int m_iIndexCount;
     unsigned int m_iVertexCount;
     bool m_bUseIndexBuffer;
+    unsigned int m_IDVBO;
 };
 
 struct SVertex

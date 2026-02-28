@@ -27,15 +27,20 @@ public:
     void AdjustIsolineInterval(float delta);
     void SetIsolineThickness(float thickness);
     void AdjustIsolineThickness(float delta);
+    void ToggleComputeNormals();
+    void ToggleModel();
 
 private:
-    CCamera* m_pCamera;
+   CCamera* m_pCamera;
 
-    CModel* m_pModelBackpack;
-    CModel* m_pModelPlane;
-	CMaterial* m_pMaterialPlane;
+   CModel* m_pModelBackpack;
+   CModel* m_pModelPlane;
+   CMaterial* m_pMaterialPlane;
 
-    CLight* m_pDirectionalLight;
+   CLight* m_pDirectionalLight;
+    
+   CProgram* m_pComputeProgram;
+   bool m_bUseComputeNormals;
 
     int m_iColormapMode;
     float m_fScalarRangeMin;
@@ -46,4 +51,6 @@ private:
     bool m_bShowIsolines;
     float m_fIsolineInterval;
     float m_fIsolineThickness;
+    
+    bool m_bShowPlane;
 };

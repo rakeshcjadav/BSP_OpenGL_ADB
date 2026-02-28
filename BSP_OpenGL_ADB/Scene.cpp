@@ -31,8 +31,11 @@ CScene::CScene()
     m_fWireframeThickness = 1.0f;
     m_fDisplacementScale = 0.0f;
     m_bShowIsolines = false;
-    m_fIsolineInterval = 0.1f;
-    m_fIsolineThickness = 2.0f;
+    m_fIsolineInterval = 0.15f;
+    m_fIsolineThickness = 1.0f;
+    m_bUseComputeNormals = false;
+    m_pComputeProgram = nullptr;
+    m_bShowPlane = true;
 }
 
 void CScene::LoadScene()
@@ -60,6 +63,10 @@ void CScene::LoadScene()
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(300.0f, 300.0f, 300.0f)),
 		CMesh::CreateRectangleTriangleList(), m_pMaterialPlane);
+
+    std::string strComputeShaderSource = CUtil::LoadShader("recompute_normals.comp");
+    CShader computeShader(CShader::SHADER_TYPE::COMPUTE_SHADER, strComputeShaderSource);
+    m_pComputeProgram = new CProgram("compute_normals", &computeShader);
 
 }
 
@@ -159,10 +166,37 @@ void CScene::AdjustIsolineThickness(float delta)
     std::cout << "Isoline Thickness: " << m_fIsolineThickness << std::endl;
 }
 
+
+void CScene::ToggleComputeNormals()
+{
+    m_bUseComputeNormals = !m_bUseComputeNormals;
+    std::cout << "Compute Normals: " << (m_bUseComputeNormals ? "ON" : "OFF") << std::endl;
+}
+
+void CScene::ToggleModel()
+{
+    m_bShowPlane = !m_bShowPlane;
+    std::cout << "Showing: " << (m_bShowPlane ? "PLANE (Visualization Mesh)" : "AIRPLANE (3D Model)") << std::endl;
+}
+
 void CScene::Render(CCamera* pCamera)
 {   
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale, m_bShowIsolines, m_fIsolineInterval, m_fIsolineThickness);
+    
+    if (m_bShowPlane)
+    {
+        if (m_bUseComputeNormals && m_pComputeProgram && m_fDisplacementScale > 0.0f)
+        {
+            m_pModelPlane->RunComputeShader(m_pComputeProgram, m_fDisplacementScale);
+        }
+        
+        m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale, m_bShowIsolines, m_fIsolineInterval, m_fIsolineThickness);
+    }
+    else
+    {
+        m_pModelBackpack->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale, m_bShowIsolines, m_fIsolineInterval, m_fIsolineThickness);
+    }
+    
     glEnable(GL_DEPTH_TEST);
 }

@@ -6,7 +6,8 @@ public:
     enum class SHADER_TYPE
     {
         VERTEX_SHADER,
-        FRAGMENT_SHADER
+        FRAGMENT_SHADER,
+        COMPUTE_SHADER
     };
     CShader(SHADER_TYPE shaderType, std::string strShaderSource);
     ~CShader();
