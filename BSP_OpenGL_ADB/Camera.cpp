@@ -154,6 +154,10 @@ void CCamera::OnKeyPressed(int key)
     {
         m_pScene->ToggleComputeNormals();
     }
+    else if (key == GLFW_KEY_S)
+    {
+        m_pScene->ToggleSmoothNormals();
+    }
     else if (key == GLFW_KEY_M)
     {
         m_pScene->ToggleModel();

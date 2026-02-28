@@ -54,8 +54,8 @@ int main()
     getchar();
     return 0;
     */
-    int width = 1280;
-    int height = 720;
+    int width = 1920;
+    int height = 1080;
     CWindow* pWindow = nullptr;
     {
         /* Initialize the library */

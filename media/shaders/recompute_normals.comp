@@ -58,8 +58,22 @@ void main()
     
     vec3 edge1 = pos1 - pos0;
     vec3 edge2 = pos2 - pos0;
-    vec3 faceNormal = normalize(cross(edge2, edge1));
-    
+    vec3 crossProduct = cross(edge2, edge1);
+
+    // Check if cross product is valid (non-degenerate triangle)
+    float crossLen = length(crossProduct);
+    vec3 faceNormal;
+
+    if (crossLen > 0.0001)
+    {
+        faceNormal = crossProduct / crossLen;  // Manual normalize with check
+    }
+    else
+    {
+        // Degenerate triangle - use default normal
+        faceNormal = vec3(0.0, 0.0, 1.0);
+    }
+
     setNormal(idx0, faceNormal);
     setNormal(idx1, faceNormal);
     setNormal(idx2, faceNormal);

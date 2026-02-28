@@ -133,5 +133,11 @@
     <None Include="..\media\shaders\recompute_normals.comp">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="..\media\shaders\smooth_normals.comp">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\media\shaders\copy_normals.comp">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

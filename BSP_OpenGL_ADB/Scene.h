@@ -28,19 +28,26 @@ public:
     void SetIsolineThickness(float thickness);
     void AdjustIsolineThickness(float delta);
     void ToggleComputeNormals();
+    void ToggleSmoothNormals();
     void ToggleModel();
 
 private:
-   CCamera* m_pCamera;
+    CCamera* m_pCamera;
 
-   CModel* m_pModelBackpack;
-   CModel* m_pModelPlane;
-   CMaterial* m_pMaterialPlane;
+    CModel* m_pModelBackpack;
+    CModel* m_pModelPlane;
+    CMaterial* m_pMaterialPlane;
 
-   CLight* m_pDirectionalLight;
+    CLight* m_pDirectionalLight;
     
-   CProgram* m_pComputeProgram;
-   bool m_bUseComputeNormals;
+	CProgram* m_pComputeProgram;
+	CProgram* m_pSmoothProgram;
+	CProgram* m_pCopyProgram;
+	CProgram* m_pSmoothNormalsProgram;
+	CProgram* m_pCopyNormalsProgram;
+	bool m_bUseComputeNormals;
+	bool m_bSmoothNormals;
+	float m_fSmoothingFactor;
 
     int m_iColormapMode;
     float m_fScalarRangeMin;

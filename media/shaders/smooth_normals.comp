@@ -1,0 +1,131 @@
+#version 430 core
+
+layout(local_size_x = 64) in;
+
+layout(std430, binding = 0) buffer VertexBuffer
+{
+    float data[];
+};
+
+layout(std430, binding = 1) buffer TempNormalBuffer
+{
+    vec4 tempNormals[];  // Use vec4 to avoid alignment issues
+};
+
+uniform int uVertexCount;
+
+const int VERTEX_SIZE = 16;
+const int POS_OFFSET = 0;
+const int NORMAL_OFFSET = 3;
+
+vec3 getPosition(uint idx)
+{
+    if (idx >= uVertexCount)
+        return vec3(0.0);
+    uint base = idx * VERTEX_SIZE;
+    return vec3(data[base + POS_OFFSET], 
+                data[base + POS_OFFSET + 1], 
+                data[base + POS_OFFSET + 2]);
+}
+
+vec3 getNormal(uint idx)
+{
+    if (idx >= uVertexCount)
+        return vec3(0.0, 0.0, 1.0);
+    uint base = idx * VERTEX_SIZE;
+    return vec3(data[base + NORMAL_OFFSET], 
+                data[base + NORMAL_OFFSET + 1], 
+                data[base + NORMAL_OFFSET + 2]);
+}
+
+void main()
+{
+    uint idx = gl_GlobalInvocationID.x;
+
+    if (idx >= uVertexCount)
+        return;
+
+    vec3 currentNormal = getNormal(idx);
+    vec3 currentPos = getPosition(idx);
+
+    // Validate input normal
+    float currentLen = length(currentNormal);
+    if (currentLen < 0.001)
+    {
+        tempNormals[idx] = vec4(0.0, 0.0, 1.0, 0.0);
+        return;
+    }
+
+    // Start with current normal
+    vec3 normalSum = currentNormal;
+    int count = 1;
+
+    // Grid parameters (for 70x70 grid)
+    const int VERTS_PER_ROW = 420;  // 70 quads * 2 triangles * 3 vertices
+    const float epsilon = 0.001;
+
+    // Search offsets: local triangles + adjacent rows
+    int offsets[14];
+    offsets[0] = -6;    // 2 triangles before
+    offsets[1] = -3;    // 1 triangle before
+    offsets[2] = 3;     // 1 triangle after
+    offsets[3] = 6;     // 2 triangles after
+    offsets[4] = -VERTS_PER_ROW - 3;   // Row above, left
+    offsets[5] = -VERTS_PER_ROW;       // Row above
+    offsets[6] = -VERTS_PER_ROW + 3;   // Row above, right
+    offsets[7] = VERTS_PER_ROW - 3;    // Row below, left
+    offsets[8] = VERTS_PER_ROW;        // Row below
+    offsets[9] = VERTS_PER_ROW + 3;    // Row below, right
+    offsets[10] = -VERTS_PER_ROW - 6;  // Row above, far left
+    offsets[11] = -VERTS_PER_ROW + 6;  // Row above, far right
+    offsets[12] = VERTS_PER_ROW - 6;   // Row below, far left
+    offsets[13] = VERTS_PER_ROW + 6;   // Row below, far right
+
+    for (int i = 0; i < 14; ++i)
+    {
+        int checkIdx = int(idx) + offsets[i];
+
+        if (checkIdx < 0 || checkIdx >= int(uVertexCount))
+            continue;
+
+        // Get the first vertex of the triangle containing this vertex
+        uint triStart = (uint(checkIdx) / 3) * 3;
+
+        if (triStart + 2 >= uVertexCount)
+            continue;
+
+        // Check if any vertex in this triangle shares our position
+        vec3 pos0 = getPosition(triStart);
+        vec3 pos1 = getPosition(triStart + 1);
+        vec3 pos2 = getPosition(triStart + 2);
+
+        bool matches = (distance(currentPos, pos0) < epsilon) ||
+                       (distance(currentPos, pos1) < epsilon) ||
+                       (distance(currentPos, pos2) < epsilon);
+
+        if (matches)
+        {
+            vec3 neighborNormal = getNormal(triStart);
+            float neighborLen = length(neighborNormal);
+
+            if (neighborLen > 0.001)
+            {
+                normalSum += neighborNormal;
+                count++;
+            }
+        }
+    }
+
+    // Average and normalize
+    vec3 smoothNormal = normalSum / float(count);
+    float len = length(smoothNormal);
+
+    if (len > 0.001)
+    {
+        tempNormals[idx] = vec4(normalize(smoothNormal), 0.0);
+    }
+    else
+    {
+        tempNormals[idx] = vec4(currentNormal, 0.0);
+    }
+}

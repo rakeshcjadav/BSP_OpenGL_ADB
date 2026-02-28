@@ -14,6 +14,10 @@ public:
     void Render();
     void BindVBOAsSSBO(unsigned int binding);
     void UnbindSSBO();
+    void CreateTempBuffer();
+    void BindTempBuffer(unsigned int binding);
+    void CreateNormalTempBuffer();
+    void BindNormalTempBuffer(unsigned int binding);
     unsigned int GetVertexCount() const { return m_iVertexCount; }
 private:
     unsigned int m_IDMesh;
@@ -21,6 +25,8 @@ private:
     unsigned int m_iVertexCount;
     bool m_bUseIndexBuffer;
     unsigned int m_IDVBO;
+    unsigned int m_IDTempSSBO;
+    unsigned int m_IDNormalTempSSBO;
 };
 
 struct SVertex

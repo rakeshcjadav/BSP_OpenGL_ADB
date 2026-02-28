@@ -29,4 +29,11 @@ struct SMaterialDef
     glm::vec3 specularColor;
     float shininess;
     float specularStrength;
+
+    SMaterialDef()
+    {
+        ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
+		diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f);
+		specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    }
 };

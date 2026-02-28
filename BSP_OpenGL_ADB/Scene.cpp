@@ -35,6 +35,8 @@ CScene::CScene()
     m_fIsolineThickness = 1.0f;
     m_bUseComputeNormals = false;
     m_pComputeProgram = nullptr;
+    m_bSmoothNormals = false;
+    m_pSmoothNormalsProgram = nullptr;
     m_bShowPlane = true;
 }
 
@@ -57,17 +59,34 @@ void CScene::LoadScene()
             glm::vec3(0.150f, 0.150f, 0.150f)),
         CUtil::GetModelPath() + "airplane\\11803_Airplane_v1_l1.obj");
 
-	m_pMaterialPlane = new CMaterial("plane_material", nullptr, CreateProgram("plane_program", "lit.vert", "lit.frag"));
+	m_pMaterialPlane = new CMaterial("plane_material", new SMaterialDef(
+                
+        ), CreateProgram("plane_program", "lit.vert", "lit.frag"));
     m_pModelPlane = CModel::Load(
         new CTransform(glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(300.0f, 300.0f, 300.0f)),
 		CMesh::CreateRectangleTriangleList(), m_pMaterialPlane);
 
-    std::string strComputeShaderSource = CUtil::LoadShader("recompute_normals.comp");
+	std::string strComputeShaderSource = CUtil::LoadShader("recompute_normals.comp");
     CShader computeShader(CShader::SHADER_TYPE::COMPUTE_SHADER, strComputeShaderSource);
     m_pComputeProgram = new CProgram("compute_normals", &computeShader);
 
+    std::string strSmoothShaderSource = CUtil::LoadShader("smooth_scalars.comp");
+    CShader smoothShader(CShader::SHADER_TYPE::COMPUTE_SHADER, strSmoothShaderSource);
+    m_pSmoothProgram = new CProgram("smooth_scalars", &smoothShader);
+
+    std::string strCopyShaderSource = CUtil::LoadShader("copy_scalars.comp");
+    CShader copyShader(CShader::SHADER_TYPE::COMPUTE_SHADER, strCopyShaderSource);
+    m_pCopyProgram = new CProgram("copy_scalars", &copyShader);
+
+    std::string strSmoothNormalsSource = CUtil::LoadShader("smooth_normals.comp");
+    CShader smoothNormalsShader(CShader::SHADER_TYPE::COMPUTE_SHADER, strSmoothNormalsSource);
+    m_pSmoothNormalsProgram = new CProgram("smooth_normals", &smoothNormalsShader);
+
+    std::string strCopyNormalsSource = CUtil::LoadShader("copy_normals.comp");
+    CShader copyNormalsShader(CShader::SHADER_TYPE::COMPUTE_SHADER, strCopyNormalsSource);
+    m_pCopyNormalsProgram = new CProgram("copy_normals", &copyNormalsShader);
 }
 
 CCamera* CScene::GetCamera()
@@ -173,6 +192,12 @@ void CScene::ToggleComputeNormals()
     std::cout << "Compute Normals: " << (m_bUseComputeNormals ? "ON" : "OFF") << std::endl;
 }
 
+void CScene::ToggleSmoothNormals()
+{
+    m_bSmoothNormals = !m_bSmoothNormals;
+    std::cout << "Smooth Normals: " << (m_bSmoothNormals ? "ON" : "OFF") << std::endl;
+}
+
 void CScene::ToggleModel()
 {
     m_bShowPlane = !m_bShowPlane;
@@ -188,7 +213,12 @@ void CScene::Render(CCamera* pCamera)
     {
         if (m_bUseComputeNormals && m_pComputeProgram && m_fDisplacementScale > 0.0f)
         {
-            m_pModelPlane->RunComputeShader(m_pComputeProgram, m_fDisplacementScale);
+            m_pModelPlane->RunComputeNormalsShader(m_pComputeProgram, m_fDisplacementScale);
+        }
+
+        if (m_bSmoothNormals)
+        {
+            m_pModelPlane->RunSmoothNormalsShader(m_pSmoothNormalsProgram, m_pCopyNormalsProgram);
         }
         
         m_pModelPlane->Render(pCamera, nullptr, m_pDirectionalLight, m_iColormapMode, m_fScalarRangeMin, m_fScalarRangeMax, m_bShowWireframe, m_fWireframeThickness, m_fDisplacementScale, m_bShowIsolines, m_fIsolineInterval, m_fIsolineThickness);

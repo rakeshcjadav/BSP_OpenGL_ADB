@@ -176,6 +176,8 @@ CMesh::CMesh(SMeshData* pMeshData)
     m_bUseIndexBuffer = true;
     m_iIndexCount = pMeshData->aIndices.size();
     m_iVertexCount = pMeshData->aVertices.size();
+    m_IDTempSSBO = 0;
+    m_IDNormalTempSSBO = 0;
 
     glGenVertexArrays(1, &m_IDMesh);
     glBindVertexArray(m_IDMesh);
@@ -215,6 +217,8 @@ CMesh::CMesh(SMeshData* pMeshData, bool useIndexBuffer)
     m_bUseIndexBuffer = useIndexBuffer;
     m_iIndexCount = pMeshData->aIndices.size();
     m_iVertexCount = pMeshData->aVertices.size();
+    m_IDTempSSBO = 0;
+    m_IDNormalTempSSBO = 0;
 
     glGenVertexArrays(1, &m_IDMesh);
     glBindVertexArray(m_IDMesh);
@@ -260,6 +264,44 @@ void CMesh::BindVBOAsSSBO(unsigned int binding)
 void CMesh::UnbindSSBO()
 {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+}
+
+void CMesh::CreateTempBuffer()
+{
+    if (m_IDTempSSBO == 0)
+    {
+        std::vector<float> tempData(m_iVertexCount, 0.0f);
+        glGenBuffers(1, &m_IDTempSSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_IDTempSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, tempData.size() * sizeof(float), tempData.data(), GL_DYNAMIC_COPY);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+}
+
+void CMesh::BindTempBuffer(unsigned int binding)
+{
+    if (m_IDTempSSBO == 0)
+        CreateTempBuffer();
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, m_IDTempSSBO);
+}
+
+void CMesh::CreateNormalTempBuffer()
+{
+    if (m_IDNormalTempSSBO == 0)
+    {
+        std::vector<glm::vec4> tempNormals(m_iVertexCount, glm::vec4(0.0f));  // Use vec4!
+        glGenBuffers(1, &m_IDNormalTempSSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_IDNormalTempSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, tempNormals.size() * sizeof(glm::vec4), tempNormals.data(), GL_DYNAMIC_COPY);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+}
+
+void CMesh::BindNormalTempBuffer(unsigned int binding)
+{
+    if (m_IDNormalTempSSBO == 0)
+        CreateNormalTempBuffer();
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, m_IDNormalTempSSBO);
 }
 
 void CMesh::Render()
