@@ -69,7 +69,7 @@ int main()
 
         pWindow->Prepare();
 
-        glEnable(GL_MULTISAMPLE);
+        //glEnable(GL_MULTISAMPLE);
 
         // TODO: Move to material
         glEnable(GL_BLEND);

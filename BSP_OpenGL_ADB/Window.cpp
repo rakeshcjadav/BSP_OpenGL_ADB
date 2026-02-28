@@ -12,10 +12,10 @@ void CWindow::OnWindowResize(GLFWwindow* pGLFWWindow, int width, int height)
     pWindow->HandleWindowResize(width, height);
 }
 
-void OnMouseScroll(GLFWwindow* pWindow, double x, double y)
+void CWindow::OnMouseScroll(GLFWwindow* pGLFWWindow, double x, double y)
 {
-    //Scale -= (float)y * 0.1f;
-    //pProgram->SetUniform("uScale", Scale);
+    CWindow* pWindow = s_mapWindows[pGLFWWindow];
+    pWindow->HandleMouseScroll(x, y);
 }
 
 void CWindow::OnMouseMove(GLFWwindow* pGLFWWindow, double xpos, double ypos)
@@ -49,7 +49,7 @@ CWindow::CWindow(int width, int height, std::string strName)
     glfwMakeContextCurrent(m_pGLFWWindow);
 
     glfwSetFramebufferSizeCallback(m_pGLFWWindow, CWindow::OnWindowResize);
-    glfwSetScrollCallback(m_pGLFWWindow, OnMouseScroll);
+    glfwSetScrollCallback(m_pGLFWWindow, CWindow::OnMouseScroll);
     glfwSetCursorPosCallback(m_pGLFWWindow, CWindow::OnMouseMove);
     glfwSetKeyCallback(m_pGLFWWindow, CWindow::OnKey);
     glfwSetMouseButtonCallback(m_pGLFWWindow, CWindow::OnMouseButton);
@@ -112,6 +112,14 @@ void CWindow::HandleWindowResize(int width, int height)
         x += width / 2;
     }
     //m_pViewport->SetSize(width, height);
+}
+
+void CWindow::HandleMouseScroll(double x, double y)
+{
+    for (IInputHandler* pHandler : m_listHandlers)
+    {
+        pHandler->OnMouseScroll(x, y);
+    }
 }
 
 void CWindow::HandleMouseMove(double xpos, double ypos)

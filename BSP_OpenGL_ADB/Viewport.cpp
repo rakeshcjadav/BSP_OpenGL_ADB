@@ -11,7 +11,7 @@ void CViewport::Clear()
 {
     glViewport(m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.z, m_ViewportSize.w);
     glScissor(m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.z, m_ViewportSize.w);
-    glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+    glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 

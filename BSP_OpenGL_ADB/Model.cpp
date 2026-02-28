@@ -3,7 +3,6 @@
 #include"Mesh.h"
 #include"Material.h"
 #include"Camera.h"
-#include"Texture.h"
 #include"Shader.h"
 #include"Program.h"
 #include"Transform.h"
@@ -49,7 +48,7 @@ CModel::CModel(CTransform* pTransform):
 
 }
 
-void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, CLight * pPointLight, CLight * pSpotLight)
+void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectionalLight, int colormapMode, float scalarMin, float scalarMax, bool showWireframe, float wireframeThickness, float displacementScale, bool showIsolines, float isolineInterval, float isolineThickness)
 {
     glm::mat4 matCamera = pCamera->GetCameraMatrix();
     glm::mat4 matProjection = pCamera->GetPerspectiveProjectionMatrix();
@@ -63,19 +62,83 @@ void CModel::Render(CCamera* pCamera, CMaterial* pOverride, CLight * pDirectiona
 
         if(pDirectionalLight)
             pDirectionalLight->Bind(pMaterial);
-        if(pPointLight)
-            pPointLight->Bind(pMaterial);
-        if(pSpotLight)
-            pSpotLight->Bind(pMaterial);
 
         pMaterial->SetUniform("uMatCamera", matCamera);
         pMaterial->SetUniform("uMatProjection", matProjection);
         pMaterial->SetUniform("uMatModel", m_pTransform->GetMatrix());
         pMaterial->SetUniform("uCameraPos", cameraPos);
+        pMaterial->SetUniform("uColormapMode", colormapMode);
+        pMaterial->SetUniform("uScalarRangeMin", scalarMin);
+        pMaterial->SetUniform("uScalarRangeMax", scalarMax);
+        pMaterial->SetUniform("uShowWireframe", showWireframe ? 1 : 0);
+        pMaterial->SetUniform("uWireframeThickness", wireframeThickness);
+        pMaterial->SetUniform("uDisplacementScale", displacementScale);
+        pMaterial->SetUniform("uShowIsolines", showIsolines ? 1 : 0);
+        pMaterial->SetUniform("uIsolineInterval", isolineInterval);
+        pMaterial->SetUniform("uIsolineThickness", isolineThickness);
 
         for (CMesh* pMesh : pair.second)
         {
             pMesh->Render();
+        }
+    }
+}
+
+void CModel::RunComputeNormalsShader(CProgram* pComputeProgram, float displacementScale)
+{
+    for (auto pair : m_mapMeshes)
+    {
+        for (CMesh* pMesh : pair.second)
+        {
+            pMesh->BindVBOAsSSBO(0);
+
+            pComputeProgram->Use();
+            pComputeProgram->SetUniform("uVertexCount", (int)pMesh->GetVertexCount());
+            pComputeProgram->SetUniform("uDisplacementScale", displacementScale);
+
+            unsigned int numTriangles = pMesh->GetVertexCount() / 3;
+            unsigned int numWorkGroups = (numTriangles + 63) / 64;
+
+            std::cout << "Recomputing normals: " << numTriangles << " triangles, " 
+                      << numWorkGroups << " work groups" << std::endl;
+
+            pComputeProgram->Dispatch(numWorkGroups, 1, 1);
+
+            GLenum err = glGetError();
+            if (err != GL_NO_ERROR)
+            {
+                std::cout << "OpenGL Error after compute: " << err << std::endl;
+            }
+
+            pMesh->UnbindSSBO();
+        }
+    }
+}
+
+void CModel::RunSmoothNormalsShader(CProgram* pSmoothProgram, CProgram* pCopyProgram)
+{
+    for (auto pair : m_mapMeshes)
+    {
+        for (CMesh* pMesh : pair.second)
+        {
+            pMesh->BindVBOAsSSBO(0);
+            pMesh->BindNormalTempBuffer(1);
+
+            pSmoothProgram->Use();
+            pSmoothProgram->SetUniform("uVertexCount", (int)pMesh->GetVertexCount());
+
+            unsigned int numWorkGroups = (pMesh->GetVertexCount() + 63) / 64;
+            pSmoothProgram->Dispatch(numWorkGroups, 1, 1);
+
+            pCopyProgram->Use();
+            pCopyProgram->SetUniform("uVertexCount", (int)pMesh->GetVertexCount());
+
+            unsigned int numCopyGroups = (pMesh->GetVertexCount() + 63) / 64;
+            pCopyProgram->Dispatch(numCopyGroups, 1, 1);
+
+            pMesh->UnbindSSBO();
+
+            std::cout << "Normal smoothing applied" << std::endl;
         }
     }
 }
@@ -113,6 +176,7 @@ bool CModel::LoadModelPrivate(CMesh* pMesh, CMaterial* pMaterial)
 
 void CModel::ProcessMaterials(const aiScene* pScene, std::string strFilePath)
 {
+    CProgram* pProgram = CreateTempProgram("lit_temp", "lit.vert", "lit.frag");
     for (unsigned int i = 0; i < pScene->mNumMaterials; i++)
     {
         aiMaterial* material = pScene->mMaterials[i];
@@ -129,31 +193,13 @@ void CModel::ProcessMaterials(const aiScene* pScene, std::string strFilePath)
         material->Get(AI_MATKEY_SHININESS, shininess);
 
         SMaterialDef* pMaterialDef = new SMaterialDef();
-        pMaterialDef->ambientColor = glm::make_vec3(&ambientColor.r);
-        pMaterialDef->diffuseColor = glm::make_vec3(&diffuseColor.r);
+        pMaterialDef->ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
+        pMaterialDef->diffuseColor = glm::vec3(1.f, 1.f, 1.f);
         pMaterialDef->specularColor = glm::make_vec3(&specularColor.r);
         pMaterialDef->shininess = shininess;
         pMaterialDef->specularStrength = specularColor.r;
 
-        aiString diffuseTexture;
-        material->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), diffuseTexture);
-
-        aiString specularTexture;
-        material->Get(AI_MATKEY_TEXTURE_SPECULAR(0), specularTexture);
-
-        std::map<std::string, CTexture*> mapTextures;
-        if (diffuseTexture.length > 0)
-        {
-            mapTextures["uMaterial.DiffuseMap"] = new CFileTexture(strFilePath + diffuseTexture.C_Str());
-        }
-        if (specularTexture.length > 0)
-        {
-            mapTextures["uMaterial.SpecularMap"] = new CFileTexture(strFilePath + specularTexture.C_Str());
-        }
-
-        CProgram * pProgram = CreateTempProgram("lit_diffuse", "lit_diffuse.vert", "lit_diffuse.frag");
-
-        m_mapMaterials[name.C_Str()] = new CMaterial(name.C_Str(), pMaterialDef, pProgram, mapTextures);
+        m_mapMaterials[name.C_Str()] = new CMaterial(name.C_Str(), pMaterialDef, pProgram);
     }
 }
 
@@ -187,7 +233,12 @@ CMesh* CModel::ProcessMesh(aiMesh* pMesh, const aiScene* pScene)
         {
             uv = glm::make_vec2(&pMesh->mTextureCoords[0][i].x);
         }
-        SVertex vertex(position, normal, uv);
+        
+        float noise = (float)(rand() % 100) / 100.0f * 0.2f - 0.1f;
+        float scalarValue = abs(sin(position.x) *cos(position.z));// +noise;
+        glm::vec2 colorRange = glm::vec2(scalarValue, 0.0f);
+        
+        SVertex vertex(position, normal, uv, colorRange);
         meshData.aVertices.push_back(vertex);
     }
 

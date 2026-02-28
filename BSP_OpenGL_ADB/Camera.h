@@ -23,11 +23,15 @@ public:
     void OnKeyReleased(int key) override;
     bool IsKeyPressed(int key) override;
     void OnMouseMove(double xpos, double ypos) override;
+	void OnMouseScroll(double x, double y) override;
     void GetMousePos(double & xpos, double & ypos) override;
     void OnLeftMouseButtonPressed(int modifier) override;
     void OnRightMouseButtonPressed(int modifier) override;
     void OnLeftMouseButtonReleased(int modifier) override;
     void OnRightMouseButtonReleased(int modifier) override;
+
+private:
+	void PrintDetails();
 
 private:
     CViewport* m_pViewport;
@@ -37,6 +41,7 @@ private:
     glm::vec3 m_vUp;
     CScene* m_pScene;
     bool m_bDragging;
+    bool m_bPanning;
     glm::dvec2 m_vMousePreviousPos;
     glm::vec3 m_vEulerAngles;
     float m_fCameraSensitivity;

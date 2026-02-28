@@ -41,9 +41,9 @@ void main()
     // Directinal Light
     diffuseColor += Diffuse(uDirectionalLight, normal);
     // Point Light
-    diffuseColor += Diffuse(uPointLight, normal, PositionFrag);
+    //diffuseColor += Diffuse(uPointLight, normal, PositionFrag);
      // Spot Light
-    diffuseColor += Diffuse(uSpotLight, normal, PositionFrag);
+    //diffuseColor += Diffuse(uSpotLight, normal, PositionFrag);
     diffuseColor *= uMaterial.material.diffuse * diffuseMapColor;
 
     // Specular ( Blin-Phong )
@@ -51,9 +51,9 @@ void main()
     // Directinal Light
     specularColor += Specular(uDirectionalLight, normal, PositionFrag, uCameraPos, uMaterial.material);
     // Point Light
-    specularColor += Specular(uPointLight, normal, PositionFrag, uCameraPos, uMaterial.material);
+    //specularColor += Specular(uPointLight, normal, PositionFrag, uCameraPos, uMaterial.material);
     // Spot Light
-    specularColor += Specular(uSpotLight, normal, PositionFrag, uCameraPos, uMaterial.material);
+    //specularColor += Specular(uSpotLight, normal, PositionFrag, uCameraPos, uMaterial.material);
     specularColor *= uMaterial.material.specular * specularMapColor;
 
     vec3 finalColor = vec3(0.0f);

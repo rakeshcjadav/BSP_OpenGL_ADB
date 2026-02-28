@@ -1,14 +1,12 @@
 #pragma once
 
 class CProgram;
-class CTexture;
 struct SMaterialDef;
 
 class CMaterial
 {
 public:
     CMaterial(std::string strName, SMaterialDef* pDef, CProgram* pProgram);
-    CMaterial(std::string strName, SMaterialDef * pDef, CProgram * pProgram, std::map<std::string, CTexture *> mapTextures);
 
     std::string GetName();
     void Bind();
@@ -22,7 +20,6 @@ private:
     std::string m_strName;
     SMaterialDef* m_pMaterialDef;
     CProgram* m_pProgram;
-    std::map<std::string, CTexture*> m_mapTextures;
 };
 
 struct SMaterialDef
@@ -32,4 +29,11 @@ struct SMaterialDef
     glm::vec3 specularColor;
     float shininess;
     float specularStrength;
+
+    SMaterialDef()
+    {
+        ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
+		diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f);
+		specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    }
 };

@@ -27,9 +27,6 @@
     <ClCompile Include="Program.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,16 +66,7 @@
     <ClCompile Include="DirectionalLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpotLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,9 +75,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Program.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
@@ -131,45 +116,27 @@
     <ClInclude Include="DirectionalLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpotLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PointLight.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\media\shaders\unlit_diffuse.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="..\media\shaders\unlit_diffuse.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="..\media\shaders\lit.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="..\media\shaders\lit.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\media\shaders\lit_diffuse.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="..\media\shaders\lit_diffuse.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="..\media\shaders\common.glsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\media\shaders\outline.frag">
+    <None Include="..\media\shaders\recompute_normals.comp">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\media\shaders\outline.vert">
+    <None Include="..\media\shaders\smooth_normals.comp">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\media\shaders\copy_normals.comp">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

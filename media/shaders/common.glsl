@@ -134,3 +134,64 @@ float LinearizeDepth(float depth)
     float z = depth * 2.0 - 1.0; // back to NDC 
     return (2.0 * near * far) / (far + near - z * (far - near));
 }
+
+// Viridis colormap - perceptually uniform colormap
+vec3 viridis(float t)
+{
+    t = clamp(t, 0.0, 1.0);
+    
+    const vec3 c0 = vec3(0.267004, 0.004874, 0.329415);
+    const vec3 c1 = vec3(0.127568, 0.566949, 0.550556);
+    const vec3 c2 = vec3(0.993248, 0.906157, 0.143936);
+    
+    float t2 = t * t;
+    float t3 = t2 * t;
+    float t4 = t3 * t;
+    
+    vec3 color = vec3(0.0);
+    color += c0;
+    color += c1 * t;
+    color -= c1 * t2 * 0.5;
+    color += c2 * t2;
+    color -= c2 * t3 * 0.666;
+    color += (vec3(0.847, 0.855, 0.788) - c0 - c1 + c1 * 0.5 - c2 + c2 * 0.666) * t3;
+    
+    return color;
+}
+
+// Turbo colormap - improved rainbow colormap
+vec3 turbo(float t)
+{
+    t = clamp(t, 0.0, 1.0);
+    
+    const vec4 kRedVec4 = vec4(0.13572138, 4.61539260, -42.66032258, 132.13108234);
+    const vec4 kGreenVec4 = vec4(0.09140261, 2.19418839, 4.84296658, -14.18503333);
+    const vec4 kBlueVec4 = vec4(0.10667330, 12.64194608, -60.58204836, 110.36276771);
+    const vec2 kRedVec2 = vec2(-152.94239396, 59.28637943);
+    const vec2 kGreenVec2 = vec2(4.27729857, 2.82956604);
+    const vec2 kBlueVec2 = vec2(-89.90310912, 27.34824973);
+    
+    float t2 = t * t;
+    float t3 = t2 * t;
+    float t4 = t3 * t;
+    
+    vec3 color;
+    color.r = clamp(kRedVec4.x + kRedVec4.y * t + kRedVec4.z * t2 + kRedVec4.w * t3 + kRedVec2.x * t4 + kRedVec2.y * t4 * t, 0.0, 1.0);
+    color.g = clamp(kGreenVec4.x + kGreenVec4.y * t + kGreenVec4.z * t2 + kGreenVec4.w * t3 + kGreenVec2.x * t4 + kGreenVec2.y * t4 * t, 0.0, 1.0);
+    color.b = clamp(kBlueVec4.x + kBlueVec4.y * t + kBlueVec4.z * t2 + kBlueVec4.w * t3 + kBlueVec2.x * t4 + kBlueVec2.y * t4 * t, 0.0, 1.0);
+    
+    return color;
+}
+
+// Jet colormap - classic rainbow colormap
+vec3 jet(float t)
+{
+    t = clamp(t, 0.0, 1.0);
+    
+    vec3 color;
+    color.r = clamp(1.5 - abs(4.0 * t - 3.0), 0.0, 1.0);
+    color.g = clamp(1.5 - abs(4.0 * t - 2.0), 0.0, 1.0);
+    color.b = clamp(1.5 - abs(4.0 * t - 1.0), 0.0, 1.0);
+    
+    return color;
+}

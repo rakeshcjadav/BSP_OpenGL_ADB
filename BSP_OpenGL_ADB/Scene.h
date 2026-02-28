@@ -3,9 +3,7 @@
 class CModel;
 class CMesh;
 class CProgram;
-class CTexture;
 class CCamera;
-class CFrameBuffer;
 
 class CScene
 {
@@ -14,38 +12,52 @@ public:
     void LoadScene();
     void Render(CCamera* pCamera);
     CCamera* GetCamera();
+    void SetColormapMode(int mode);
+    void SetScalarRangeMin(float value);
+    void SetScalarRangeMax(float value);
+    void AdjustScalarRangeMin(float delta);
+    void AdjustScalarRangeMax(float delta);
+    void ToggleWireframe();
+    void SetWireframeThickness(float thickness);
+    void AdjustWireframeThickness(float delta);
+    void SetDisplacementScale(float scale);
+    void AdjustDisplacementScale(float delta);
+    void ToggleIsolines();
+    void SetIsolineInterval(float interval);
+    void AdjustIsolineInterval(float delta);
+    void SetIsolineThickness(float thickness);
+    void AdjustIsolineThickness(float delta);
+    void ToggleComputeNormals();
+    void ToggleSmoothNormals();
+    void ToggleModel();
 
 private:
-    CProgram* m_pUnlitProgram;
-    CProgram* m_pLitProgram;
-    CProgram* m_pLitDiffuseProgram;
-    CProgram* m_pOutline;
-
-    CTexture* m_pTexture;
-    CTexture* m_pTexture2;
-    CTexture* m_pContainerTexture;
-    CTexture* m_pContainerSpecularTexture;
     CCamera* m_pCamera;
 
     CModel* m_pModelBackpack;
-
-    CModel* m_pModelCrate;
-    CModel* m_pModelMinion;
-    CModel* m_pModelGround;
-    CModel* m_pModelFBO;
+    CModel* m_pModelPlane;
+    CMaterial* m_pMaterialPlane;
 
     CLight* m_pDirectionalLight;
-    CLight* m_pSpotLight;
-    CLight* m_pPointLight;
+    
+	CProgram* m_pComputeProgram;
+	CProgram* m_pSmoothProgram;
+	CProgram* m_pCopyProgram;
+	CProgram* m_pSmoothNormalsProgram;
+	CProgram* m_pCopyNormalsProgram;
+	bool m_bUseComputeNormals;
+	bool m_bSmoothNormals;
+	float m_fSmoothingFactor;
 
-    CMaterial* m_pLitCrateMaterial;
-    CMaterial* m_pUnlitCrateMaterial;
-    CMaterial* m_pLitGround;
-
-    CMaterial* m_pUnlitFBOMaterial;
-
-    CMaterial* m_pOutlineMaterial;
-
-    CFrameBuffer* m_pOffScreenFrameBuffer_MS;
-    CFrameBuffer* m_pOffScreenFrameBuffer;
+    int m_iColormapMode;
+    float m_fScalarRangeMin;
+    float m_fScalarRangeMax;
+    bool m_bShowWireframe;
+    float m_fWireframeThickness;
+    float m_fDisplacementScale;
+    bool m_bShowIsolines;
+    float m_fIsolineInterval;
+    float m_fIsolineThickness;
+    
+    bool m_bShowPlane;
 };

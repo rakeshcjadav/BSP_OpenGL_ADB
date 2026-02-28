@@ -20,6 +20,23 @@ CProgram::CProgram(std::string strName, CShader* pVertexShader, CShader* pFragme
     }
 }
 
+CProgram::CProgram(std::string strName, CShader* pComputeShader)
+{
+    m_strName = strName;
+
+    m_IDProgram = glCreateProgram();
+    glAttachShader(m_IDProgram, pComputeShader->GetID());
+    glLinkProgram(m_IDProgram);
+
+    int success;
+    glGetProgramiv(m_IDProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(m_IDProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::COMPUTE_PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+}
+
 unsigned int CProgram::GetID()
 {
     return m_IDProgram;
@@ -29,6 +46,13 @@ void CProgram::Use()
 {
     glUseProgram(m_IDProgram);
     SetUniform("uMaterial.DiffuseMapTiling", glm::vec2(1.0f, 1.0f));
+}
+
+void CProgram::Dispatch(unsigned int numGroupsX, unsigned int numGroupsY, unsigned int numGroupsZ)
+{
+    glUseProgram(m_IDProgram);
+    glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void CProgram::SetUniform(std::string strName, int value)
