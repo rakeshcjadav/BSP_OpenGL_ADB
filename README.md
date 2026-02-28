@@ -6,6 +6,18 @@ A real-time scientific visualization application built with modern OpenGL 4.3+. 
 
 ---
 
+## Some key points about the project:
+  - Switch between procedural plane and a 3D model (airplane) with `M` key
+    -- Used a simple procedural plane for testing and development, specifically to visualize contour lines and displacement effects clearly.
+  - Compute Shaders for recomputation of normals after displacement as well as smoothing those normals.
+  - Avoided the "noise" in the scalar field to create smooth contours (isolines).
+  - The application is designed to run on Windows 10/11 with a GPU that supports OpenGL 4.3 or higher. It is built using Visual Studio and includes all necessary dependencies
+  - Windows SDK : Windows 10.0 SDK (latest) + Platform Toolset : v145
+  - Implemented Problem A ( Core + Level2 + Level3 )
+  - Wireframe rendering along with the solid mesh in a single pass using barycentric coordinates was very interesting to see.
+
+--- 
+
 ## Table of Contents
 
 1. [Features](#features)
@@ -33,7 +45,6 @@ A real-time scientific visualization application built with modern OpenGL 4.3+. 
 ### GPU Compute Features (OpenGL 4.3+)
 - **Normal Recomputation**: GPU-accelerated face normal calculation after displacement
 - **Normal Smoothing**: Averaging normals across shared vertices for smooth shading
-- **Scalar Smoothing**: Noise reduction and field smoothing via compute shaders
 
 ### Additional Features
 - **Model Switching**: Toggle between visualization plane and 3D model
